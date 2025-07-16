@@ -6,6 +6,7 @@ function dashboardApp() {
     return {
         // --- Properti ---
         isLoading: true,
+        isSidebarOpen: false,
         activeView: 'beranda',
         userData: {},
         menuData: { aset: [] },
