@@ -38,16 +38,11 @@
     </div>
 
     <script>
-        // ===============================================================
-        //                       LOGIKA RESET PASSWORD
-        // ===============================================================
-
-        // ‼️ GANTI DENGAN URL CLOUDFLARE WORKER ANDA
         const API_ENDPOINT = "https://wmalam.senrima-ms.workers.dev";
 
-        // Fungsi untuk menampilkan pesan status ke pengguna
         function setStatusMessage(message, type) {
             const statusDiv = document.getElementById('status-message');
+            if (!message) { statusDiv.innerHTML = ''; return; }
             const isSuccess = type === 'success';
             const bgColor = isSuccess ? 'bg-green-100' : 'bg-red-100';
             const borderColor = isSuccess ? 'border-green-400' : 'border-red-400';
@@ -55,71 +50,61 @@
             statusDiv.innerHTML = `<div class="p-4 rounded-lg border-l-4 ${bgColor} ${borderColor} ${textColor} text-left"><span class="font-medium">${message}</span></div>`;
         }
 
-        // Fungsi untuk mendapatkan token dari URL
         function getTokenFromUrl() {
-            const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get('token');
+            return new URLSearchParams(window.location.search).get('token');
         }
 
-        // Menjalankan semua logika setelah halaman dimuat
         document.addEventListener('DOMContentLoaded', () => {
             const resetForm = document.getElementById('reset-form');
             const token = getTokenFromUrl();
 
-            // Jika tidak ada token di URL, hentikan proses
             if (!token) {
-                document.querySelector('.bg-white').innerHTML = '<h1 class="text-2xl text-red-600 p-8">Token tidak valid atau tidak ditemukan. Silakan ulangi proses lupa password.</h1>';
+                document.querySelector('.bg-white').innerHTML = '<h1 class="text-2xl text-red-600 p-8">Token tidak valid atau tidak ditemukan.</h1>';
                 return;
             }
 
             resetForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
-
                 const newPassword = document.getElementById('reset-password').value;
                 const confirmPassword = document.getElementById('reset-confirm-password').value;
                 const resetButton = document.getElementById('reset-btn');
                 const originalButtonText = resetButton.textContent;
 
-                // Cek apakah password cocok
                 if (newPassword !== confirmPassword) {
                     setStatusMessage('Password baru dan konfirmasi tidak cocok.', 'error');
                     return;
                 }
 
-                // Tampilkan status loading di tombol
                 resetButton.disabled = true;
                 resetButton.innerHTML = `<svg class="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`;
-                setStatusMessage('', 'success'); // Bersihkan pesan lama
+                setStatusMessage('');
 
                 try {
-                    const response = await fetch(`${API_ENDPOINT}/api/reset-password`, {
+                    const response = await fetch(API_ENDPOINT, { // Mengirim ke root endpoint
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
+                        // **PERUBAHAN UTAMA DI SINI**
+                        // Menambahkan kembali parameter 'kontrol'
                         body: JSON.stringify({
-                            action: 'resetPassword', // Sesuaikan dengan kebutuhan backend
+                            kontrol: 'proteksi',
+                            action: 'resetPassword',
                             token: token,
                             newPassword: newPassword
                         })
                     });
-
                     const result = await response.json();
-
                     if (result.status === 'success') {
                         setStatusMessage(result.message, 'success');
-                        // Nonaktifkan form dan tombol setelah berhasil
                         resetButton.style.display = 'none';
                         document.getElementById('reset-password').disabled = true;
                         document.getElementById('reset-confirm-password').disabled = true;
-                        // Arahkan ke halaman login setelah 3 detik
                         setTimeout(() => { window.location.href = 'index.html'; }, 3000);
                     } else {
                         setStatusMessage(result.message || 'Terjadi kesalahan.', 'error');
                     }
-
                 } catch (error) {
                     setStatusMessage('Gagal terhubung ke server. Periksa koneksi internet Anda.', 'error');
                 } finally {
-                    // Kembalikan tombol ke keadaan semula jika tidak berhasil
                     if (document.getElementById('reset-btn').style.display !== 'none') {
                         resetButton.disabled = false;
                         resetButton.innerHTML = originalButtonText;
