@@ -130,10 +130,9 @@ function setupOtpPage() {
         e.preventDefault();
         const otp = document.getElementById('otp-code').value;
         
+        // Memanggil API untuk verifikasi OTP
         const result = await callPublicApi({ action: 'verifyOTP', email, otp }, 'otp-btn');
-        
-        // PERUBAHAN UTAMA DI SINI
-        if (result.status === 'success' || result.status === 'change_password_required') {
+         if (result.status === 'success' || result.status === 'change_password_required') {
             const token = result.token; // Ambil token dari respons server
             if (token) {
                 // Hapus data sementara dan arahkan ke dashboard dengan token di URL
