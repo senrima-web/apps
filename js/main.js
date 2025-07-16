@@ -118,6 +118,7 @@ function setupRegisterPage() {
     });
 }
 
+// GANTI fungsi lama setupOtpPage dengan yang ini:
 function setupOtpPage() {
     const email = sessionStorage.getItem('userEmailForOTP');
     if (!email) {
@@ -129,17 +130,21 @@ function setupOtpPage() {
         e.preventDefault();
         const otp = document.getElementById('otp-code').value;
         
-        // Memanggil API untuk verifikasi OTP
         const result = await callPublicApi({ action: 'verifyOTP', email, otp }, 'otp-btn');
+        
+        // PERUBAHAN UTAMA DI SINI
         if (result.status === 'success' || result.status === 'change_password_required') {
-            // Simpan token sesi yang diterima dari backend
-            sessionStorage.setItem('appToken', result.token);
-            sessionStorage.removeItem('userEmailForOTP');
-            window.location.href = 'dashboard-new.html';
+            const token = result.token; // Ambil token dari respons server
+            if (token) {
+                // Hapus data sementara dan arahkan ke dashboard dengan token di URL
+                sessionStorage.removeItem('userEmailForOTP');
+                window.location.href = `dashboard-new.html?token=${token}`;
+            } else {
+                setStatusMessage('Gagal mendapatkan token sesi dari server.', 'error');
+            }
         }
     });
 }
-
 function setupForgotPasswordPage() {
     document.getElementById('forgot-form').addEventListener('submit', async (e) => {
         e.preventDefault();
