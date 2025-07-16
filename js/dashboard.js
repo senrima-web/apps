@@ -1,6 +1,6 @@
 // File: /js/dashboard.js (GANTI SEMUA ISI FILE DENGAN INI)
 
-const API_ENDPOINT = "https://api.senrima.web.id"; // Menggunakan URL Kustom Anda
+const API_ENDPOINT = "https://wmalam.senrima-ms.workers.dev"; // Menggunakan URL Kustom Anda
 
 function dashboardApp() {
     return {
