@@ -29,7 +29,7 @@ function dashboardApp() {
                 const response = await fetch(API_ENDPOINT, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ kontrol: 'proteksi', action: 'getDashboardData' })
+                    body: JSON.stringify({ kontrol: 'proteksi', action: 'getDashboardData', token: initialToken })
                 });
                 const result = await response.json();
                 if (result.status === 'success') {
@@ -75,7 +75,7 @@ function dashboardApp() {
             if (this.bonuses.length > 0) return;
 
             this.isBonusesLoading = true;
-            const response = await this.callApi({ action: 'getBonus', token: initialToken });
+            const response = await this.callApi({ action: 'getBonus' });
             if (response.status === 'success') {
                 this.bonuses = response.data;
             } else {
@@ -86,6 +86,7 @@ function dashboardApp() {
 
         // --- Fungsi Inti ---
         async callApi(payload) {
+            const initialToken = urlParams.get('token');
             if (!this.sessionToken) {
                 this.showModal('Sesi tidak valid.');
                 setTimeout(() => this.logout(false), 2000);
