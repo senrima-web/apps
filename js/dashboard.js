@@ -1,17 +1,21 @@
-// File: /js/dashboard.js (GANTI SEMUA ISI FILE DENGAN INI)
+// File: /js/dashboard.js
 
-const API_ENDPOINT = "https://wmalam.senrima-ms.workers.dev"; // Menggunakan URL Kustom Anda
+const API_ENDPOINT = "https://api.senrima.web.id";
 
 function dashboardApp() {
     return {
         // --- Properti ---
         isLoading: true,
-        isSidebarOpen: false, // <-- VARIABEL YANG LUPA DITAMBAHKAN
+        isSidebarOpen: false,
         activeView: 'beranda',
         userData: {},
         menuData: { aset: [] },
         passwordForm: { old: '', new: '', message: '', success: false },
         sessionToken: null,
+
+        // Properti Baru untuk Notifikasi Kustom
+        isModalOpen: false,
+        modalMessage: '',
 
         // --- Inisialisasi Dashboard ---
         async init() {
@@ -19,8 +23,8 @@ function dashboardApp() {
             const initialToken = urlParams.get('token');
 
             if (!initialToken) {
-                alert('Akses tidak sah. Token tidak ditemukan.');
-                window.location.href = 'index.html';
+                this.showModal('Akses tidak sah. Token tidak ditemukan.');
+                setTimeout(() => window.location.href = 'index.html', 2000);
                 return;
             }
 
@@ -28,11 +32,7 @@ function dashboardApp() {
                 const response = await fetch(API_ENDPOINT, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        kontrol: 'proteksi',
-                        action: 'getDashboardData',
-                        token: initialToken
-                    })
+                    body: JSON.stringify({ kontrol: 'proteksi', action: 'getDashboardData', token: initialToken })
                 });
                 const result = await response.json();
                 if (result.status === 'success') {
@@ -44,37 +44,36 @@ function dashboardApp() {
                     }
                     this.isLoading = false;
                 } else {
-                    alert(result.message);
-                    window.location.href = 'index.html';
+                    this.showModal(result.message);
+                    setTimeout(() => window.location.href = 'index.html', 2000);
                 }
             } catch (e) {
-                alert('Gagal terhubung ke server untuk verifikasi sesi.');
-                window.location.href = 'index.html';
+                this.showModal('Gagal terhubung ke server untuk verifikasi sesi.');
+                setTimeout(() => window.location.href = 'index.html', 2000);
             }
+        },
+
+        // --- Fungsi Baru untuk Menampilkan Notifikasi ---
+        showModal(message) {
+            this.modalMessage = message;
+            this.isModalOpen = true;
         },
 
         // --- API Call ---
         async callApi(payload) {
             if (!this.sessionToken) {
-                alert('Sesi tidak ditemukan. Mengarahkan kembali ke login.');
-                window.location.href = 'index.html';
+                this.showModal('Sesi tidak ditemukan. Mengarahkan kembali ke login.');
+                setTimeout(() => this.logout(false), 2000);
                 return;
             }
-            const headers = { 
-                'Content-Type': 'application/json',
-                'x-auth-token': this.sessionToken
-            };
+            const headers = { 'Content-Type': 'application/json', 'x-auth-token': this.sessionToken };
             const finalPayload = { ...payload, kontrol: 'proteksi' };
             try {
-                const response = await fetch(API_ENDPOINT, { 
-                    method: 'POST', 
-                    headers, 
-                    body: JSON.stringify(finalPayload) 
-                });
+                const response = await fetch(API_ENDPOINT, { method: 'POST', headers, body: JSON.stringify(finalPayload) });
                 const result = await response.json();
                 if (result.status === 'error' && (result.message.includes('Token tidak valid') || result.message.includes('Sesi telah berakhir'))) {
-                    alert(result.message);
-                    this.logout(false);
+                    this.showModal(result.message);
+                    setTimeout(() => this.logout(false), 2000);
                 }
                 return result;
             } catch (e) {
@@ -93,11 +92,7 @@ function dashboardApp() {
         // --- Fungsi Ganti Password ---
         async changePassword() {
             this.passwordForm.message = 'Memproses...';
-            const payload = { 
-                action: 'changePassword', 
-                oldPassword: this.passwordForm.old, 
-                newPassword: this.passwordForm.new 
-            };
+            const payload = { action: 'changePassword', oldPassword: this.passwordForm.old, newPassword: this.passwordForm.new };
             const result = await this.callApi(payload);
             this.passwordForm.message = result.message;
             this.passwordForm.success = result.status === 'success';
