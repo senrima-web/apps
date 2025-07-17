@@ -28,6 +28,7 @@ function dashboardApp() {
                 return;
             }
 
+            // HANYA SATU KALI PANGGILAN API UNTUK SEMUA DATA
             try {
                 const response = await fetch(API_ENDPOINT, {
                     method: 'POST',
@@ -38,7 +39,7 @@ function dashboardApp() {
                 if (result.status === 'success') {
                     this.sessionToken = initialToken;
                     this.userData = result.userData;
-                    this.menuData = result.menuData;
+                    this.digitalAssets = result.digitalAssets; // Langsung isi data aset dari sini
                     if (this.userData.status === 'Wajib Ganti Password') {
                         this.activeView = 'akun';
                     }
