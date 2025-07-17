@@ -37,7 +37,7 @@
             
             <div class="flex-1 mt-6 px-4 space-y-2">
                 <a href="#" @click.prevent="activeView = 'beranda'; isSidebarOpen = false" :class="activeView === 'beranda' ? 'menu-active' : ''" class="flex items-center px-4 py-2.5 text-gray-600 hover:bg-gray-100 rounded-lg">Beranda</a>
-                <a href="#" @click.prevent="activeView = 'aset'; loadDigitalAssets(); isSidebarOpen = false" :class="activeView === 'aset' ? 'menu-active' : ''" class="flex items-center px-4 py-2.5 text-gray-600 hover:bg-gray-100 rounded-lg">Aset Digital</a>
+                <a href="#" @click.prevent="activeView = 'aset'; isSidebarOpen = false" :class="activeView === 'aset' ? 'menu-active' : ''" class="flex items-center px-4 py-2.5 text-gray-600 hover:bg-gray-100 rounded-lg">Aset Digital</a>
                 <a href="#" @click.prevent="activeView = 'bonus'; isSidebarOpen = false" :class="activeView === 'bonus' ? 'menu-active' : ''" class="flex items-center px-4 py-2.5 text-gray-600 hover:bg-gray-100 rounded-lg">Bonus</a>
                 <a href="#" @click.prevent="activeView = 'akun'; isSidebarOpen = false" :class="activeView === 'akun' ? 'menu-active' : ''" class="flex items-center px-4 py-2.5 text-gray-600 hover:bg-gray-100 rounded-lg">Akun Saya</a>
             </div>
