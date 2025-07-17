@@ -59,11 +59,10 @@ function dashboardApp() {
         // --- Fungsi untuk Memuat Aset & Bonus (Lazy Loading) ---
         async loadDigitalAssets() {
             // Jika data sudah ada, tidak perlu panggil API lagi
-            const initialToken = urlParams.get('token');
             if (this.digitalAssets.length > 0) return;
             
             this.isAssetsLoading = true;
-            const response = await this.callApi({ action: 'getAsetDigital', token: initialToken });
+            const response = await this.callApi({ action: 'getAsetDigital' });
             if (response.status === 'success') {
                 this.digitalAssets = response.data;
             } else {
@@ -73,11 +72,10 @@ function dashboardApp() {
         },
         async loadBonuses() {
             // Jika data sudah ada, tidak perlu panggil API lagi
-            const initialToken = urlParams.get('token');
             if (this.bonuses.length > 0) return;
 
             this.isBonusesLoading = true;
-            const response = await this.callApi({ action: 'getBonus', token: initialToken });
+            const response = await this.callApi({ action: 'getBonus' });
             if (response.status === 'success') {
                 this.bonuses = response.data;
             } else {
@@ -88,6 +86,8 @@ function dashboardApp() {
 
         // --- Fungsi Inti ---
         async callApi(payload) {
+            const urlParams = new URLSearchParams(window.location.search);
+            const initialToken = urlParams.get('token');
             if (!this.sessionToken) {
                 this.showModal('Sesi tidak valid.');
                 setTimeout(() => this.logout(false), 2000);
@@ -95,7 +95,7 @@ function dashboardApp() {
             }
             const headers = { 'Content-Type': 'application/json', 'x-auth-token': this.sessionToken };
             try {
-                const response = await fetch(API_ENDPOINT, { method: 'POST', headers, body: JSON.stringify({ ...payload, kontrol: 'proteksi' }) });
+                const response = await fetch(API_ENDPOINT, { method: 'POST', headers, body: JSON.stringify({ ...payload, kontrol: 'proteksi', token: initialToken }) });
                 const result = await response.json();
                 if (result.status === 'error' && (result.message.includes('Token tidak valid') || result.message.includes('Sesi telah berakhir'))) {
                     this.showModal(result.message);
