@@ -35,7 +35,7 @@
                     <div x-show="!isAssetsLoading && digitalAssets.length > 0" class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         <template x-for="(asset, index) in digitalAssets" :key="index">
                             <div class="bg-white rounded-lg shadow-md overflow-hidden flex flex-col">
-                                <div class="aspect-w-16 aspect-h-9">
+                                <div class="aspect-[16/9]">
                                     <img :src="asset.URLGambar" :alt="asset.NamaAset" class="w-full h-full object-cover">
                                 </div>
                                 
