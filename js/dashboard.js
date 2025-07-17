@@ -29,7 +29,7 @@ function dashboardApp() {
                 const response = await fetch(API_ENDPOINT, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ kontrol: 'proteksi', action: 'getDashboardData', token: initialToken })
+                    body: JSON.stringify({ kontrol: 'proteksi', action: 'getDashboardData' })
                 });
                 const result = await response.json();
                 if (result.status === 'success') {
@@ -75,7 +75,7 @@ function dashboardApp() {
             if (this.bonuses.length > 0) return;
 
             this.isBonusesLoading = true;
-            const response = await this.callApi({ action: 'getBonus' });
+            const response = await this.callApi({ action: 'getBonus', token: initialToken });
             if (response.status === 'success') {
                 this.bonuses = response.data;
             } else {
@@ -93,7 +93,7 @@ function dashboardApp() {
             }
             const headers = { 'Content-Type': 'application/json', 'x-auth-token': this.sessionToken };
             try {
-                const response = await fetch(API_ENDPOINT, { method: 'POST', headers, body: JSON.stringify({ ...payload, kontrol: 'proteksi' }) });
+                const response = await fetch(API_ENDPOINT, { method: 'POST', headers, body: JSON.stringify({ ...payload, kontrol: 'proteksi', token: initialToken }) });
                 const result = await response.json();
                 if (result.status === 'error' && (result.message.includes('Token tidak valid') || result.message.includes('Sesi telah berakhir'))) {
                     this.showModal(result.message);
