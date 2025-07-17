@@ -81,20 +81,24 @@
                 <div x-show="activeView === 'aset'">
                     <h3 class="text-gray-800 text-3xl font-medium">Aset Digital Anda</h3>
                     <div x-show="isAssetsLoading" class="mt-8 text-center"><p>Memuat aset...</p></div>
-                    <div x-show="!isAssetsLoading && digitalAssets.length > 0" class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                        <template x-for="(asset, index) in digitalAssets" :key="index">
-                            <div class="bg-white rounded-lg shadow-md overflow-hidden flex flex-col">
-                                <div class="aspect-video bg-gray-200">
-                                    <img :src="asset.URLGambar" :alt="asset.NamaAset" class="w-full h-full object-cover">
+                        <div x-show="!isAssetsLoading && digitalAssets.length > 0" class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                            <template x-for="(asset, index) in digitalAssets" :key="index">
+                                <div class="bg-white rounded-lg shadow-md overflow-hidden flex flex-col h-full">
+                                    <div class="aspect-video bg-gray-200">
+                                        <img :src="asset.URLGambar" :alt="asset.NamaAset" class="w-full h-full object-cover">
+                                    </div>
+                                    <div class="p-4 flex flex-col flex-grow">
+                                        <h4 class="text-lg font-semibold text-gray-800 line-clamp-2 mb-2" x-text="asset.NamaAset"></h4>
+                                        <p class="text-gray-600 text-sm flex-grow line-clamp-3 mb-4" x-text="asset.Deskripsi"></p>
+                                        <a  :href="`${asset.URLTujuan}?idapp=${asset.IDapp}&token=${sessionToken}`"
+                                            target="_blank"
+                                            class="mt-auto w-full text-center bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 font-semibold transition-colors duration-300">
+                                            Akses Aset
+                                        </a>
+                                    </div>
                                 </div>
-                                <div class="p-5 flex flex-col flex-grow">
-                                    <h4 class="text-lg font-semibold text-gray-800 line-clamp-2" x-text="asset.NamaAset"></h4>
-                                    <p class="mt-2 text-gray-600 text-sm flex-grow line-clamp-3" x-text="asset.Deskripsi"></p>
-                                    <a  :href="`${asset.URLTujuan}?idapp=${asset.IDapp}&token=${sessionToken}`" target="_blank" class="mt-auto w-full text-center bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 font-semibold transition-colors duration-300">Akses Aset</a>
-                                </div>
-                            </div>
-                        </template>
-                    </div>
+                            </template>
+                        </div>
                     <div x-show="!isAssetsLoading && digitalAssets.length === 0" class="mt-8 text-center bg-white p-8 rounded-lg shadow">
                         <p class="text-gray-500">Anda belum memiliki aset digital.</p>
                     </div>
