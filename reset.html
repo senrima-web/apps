@@ -99,7 +99,7 @@
                         resetButton.style.display = 'none';
                         document.getElementById('reset-password').disabled = true;
                         document.getElementById('reset-confirm-password').disabled = true;
-                        setTimeout(() => { window.location.href = 'index.html'; }, 3000);
+                        setTimeout(() => { window.location.href = 'index.html'; }, 300);
                     } else {
                         setStatusMessage(result.message || 'Terjadi kesalahan.', 'error');
                     }
