@@ -60,18 +60,6 @@ function dashboardApp() {
             this.isModalOpen = true;
         },
         
-        // --- Fungsi Memuat Aset Digital ---
-        async loadDigitalAssets() {
-            if (this.digitalAssets.length > 0) return;
-            this.isAssetsLoading = true;
-            const response = await this.callApi({ action: 'getAsetDigital' });
-            if (response.status === 'success') {
-                this.digitalAssets = response.data;
-            } else {
-                this.showModal('Gagal memuat Aset Digital.');
-            }
-            this.isAssetsLoading = false;
-        },
 
         // --- API Call ---
         async callApi(payload) {
