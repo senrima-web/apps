@@ -37,7 +37,7 @@
             
             <div class="flex-1 mt-6 px-4 space-y-2">
                 <a href="#" @click.prevent="activeView = 'beranda'; isSidebarOpen = false" :class="activeView === 'beranda' ? 'menu-active' : ''" class="flex items-center px-4 py-2.5 text-gray-600 hover:bg-gray-100 rounded-lg">Beranda</a>
-                <a href="#" @click.prevent="activeView = 'aset'; isSidebarOpen = false" :class="activeView === 'aset' ? 'menu-active' : ''" class="flex items-center px-4 py-2.5 text-gray-600 hover:bg-gray-100 rounded-lg">Aset Digital</a>
+                <a href="#" @click.prevent="activeView = 'aset'; loadDigitalAssets(); isSidebarOpen = false" :class="activeView === 'aset' ? 'menu-active' : ''" class="flex items-center px-4 py-2.5 text-gray-600 hover:bg-gray-100 rounded-lg">Aset Digital</a>
                 <a href="#" @click.prevent="activeView = 'bonus'; isSidebarOpen = false" :class="activeView === 'bonus' ? 'menu-active' : ''" class="flex items-center px-4 py-2.5 text-gray-600 hover:bg-gray-100 rounded-lg">Bonus</a>
                 <a href="#" @click.prevent="activeView = 'akun'; isSidebarOpen = false" :class="activeView === 'akun' ? 'menu-active' : ''" class="flex items-center px-4 py-2.5 text-gray-600 hover:bg-gray-100 rounded-lg">Akun Saya</a>
             </div>
@@ -56,9 +56,7 @@
                 <div class="flex items-center bg-gray-100 hover:bg-gray-200 rounded-full pl-4 pr-2 py-2 ml-auto cursor-pointer">
                     <span class="font-semibold text-gray-700 text-sm mr-3" x-text="userData.nama || 'Pengguna'"></span>
                     <div class="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                          <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
-                        </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" /></svg>
                     </div>
                 </div>
             </header>
@@ -67,18 +65,29 @@
                 <div x-show="activeView === 'beranda'">
                     <h3 class="text-gray-800 text-3xl font-medium">Beranda</h3>
                 </div>
+                
                 <div x-show="activeView === 'aset'">
-                    <h3 class="text-gray-800 text-3xl font-medium">Aset Digital</h3>
-                     <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <template x-for="button in menuData.aset" :key="button.id">
-                            <a x-show="button.visible" :href="button.url" target="_blank" class="block p-6 bg-white rounded-lg shadow hover:shadow-lg text-center font-semibold text-gray-700" x-text="button.text"></a>
+                    <h3 class="text-gray-800 text-3xl font-medium">Aset Digital Anda</h3>
+                    <div x-show="isAssetsLoading" class="mt-8 text-center"><p>Memuat aset...</p></div>
+                    <div x-show="!isAssetsLoading && digitalAssets.length > 0" class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <template x-for="(asset, index) in digitalAssets" :key="index">
+                            <div class="bg-white rounded-lg shadow-md overflow-hidden transform hover:-translate-y-1 transition-transform duration-300">
+                                <img :src="asset.URLGambar" alt="Gambar Aset" class="w-full h-40 object-cover">
+                                <div class="p-5">
+                                    <h4 class="text-xl font-semibold text-gray-800" x-text="asset.NamaAset"></h4>
+                                    <p class="mt-2 text-gray-600 text-sm" x-text="asset.Deskripsi"></p>
+                                    <a :href="asset.URLTujuan" target="_blank" class="mt-4 inline-block bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 font-semibold">Akses Aset</a>
+                                </div>
+                            </div>
                         </template>
                     </div>
+                    <div x-show="!isAssetsLoading && digitalAssets.length === 0" class="mt-8 text-center bg-white p-8 rounded-lg shadow">
+                        <p class="text-gray-500">Anda belum memiliki aset digital.</p>
+                    </div>
                 </div>
-                <div x-show="activeView === 'bonus'">
-                    <h3 class="text-gray-800 text-3xl font-medium">Bonus</h3>
-                    <p class="mt-4 text-gray-600">Halaman untuk menampilkan bonus Anda.</p>
-                </div>
+
+                <div x-show="activeView === 'bonus'"><h3 class="text-gray-800 text-3xl font-medium">Bonus</h3></div>
+                
                 <div x-show="activeView === 'akun'">
                     <h3 class="text-gray-800 text-3xl font-medium">Akun Saya</h3>
                     <div class="mt-6 bg-white p-6 rounded-lg shadow-md max-w-lg">
@@ -105,47 +114,19 @@
         </div>
     </div>
     
-
-<div 
-        x-show="isModalOpen"
-        x-transition:enter="ease-out duration-300"
-        x-transition:enter-start="opacity-0"
-        x-transition:enter-end="opacity-100"
-        x-transition:leave="ease-in duration-200"
-        x-transition:leave-start="opacity-100"
-        x-transition:leave-end="opacity-0"
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4"
-        x-cloak
-    >
-        <div 
-            @click.outside="isModalOpen = false"
-            x-show="isModalOpen"
-            x-transition:enter="ease-out duration-300"
-            x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-            x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
-            x-transition:leave="ease-in duration-200"
-            x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
-            x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-            class="w-full max-w-sm bg-white rounded-lg shadow-xl p-6 text-center"
-        >
+    <div x-show="isModalOpen" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4" x-cloak>
+        <div @click.outside="isModalOpen = false" x-show="isModalOpen" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" class="w-full max-w-sm bg-white rounded-lg shadow-xl p-6 text-center">
             <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
-              <svg class="h-6 w-6 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126z" />
-              </svg>
+              <svg class="h-6 w-6 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126z" /></svg>
             </div>
             <h3 class="mt-4 text-lg font-medium text-gray-900">Pemberitahuan</h3>
             <p class="mt-2 text-sm text-gray-600" x-text="modalMessage"></p>
             <div class="mt-5">
-                <button 
-                    @click="isModalOpen = false"
-                    type="button"
-                    class="w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 focus:outline-none"
-                >
-                    Oke
-                </button>
+                <button @click="isModalOpen = false" type="button" class="w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 focus:outline-none">Oke</button>
             </div>
         </div>
     </div>
+
     <script src="js/dashboard.js"></script>
 </body>
 </html>
