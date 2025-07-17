@@ -12,8 +12,8 @@ function dashboardApp() {
         menuData: { aset: [] },
         passwordForm: { old: '', new: '', message: '', success: false },
         sessionToken: null,
-
-        // Properti Baru untuk Notifikasi Kustom
+        digitalAssets: [],
+        isAssetsLoading: false,
         isModalOpen: false,
         modalMessage: '',
 
@@ -53,10 +53,23 @@ function dashboardApp() {
             }
         },
 
-        // --- Fungsi Baru untuk Menampilkan Notifikasi ---
+        // --- Fungsi Notifikasi Kustom ---
         showModal(message) {
             this.modalMessage = message;
             this.isModalOpen = true;
+        },
+        
+        // --- Fungsi Memuat Aset Digital ---
+        async loadDigitalAssets() {
+            if (this.digitalAssets.length > 0) return;
+            this.isAssetsLoading = true;
+            const response = await this.callApi({ action: 'getAsetDigital' });
+            if (response.status === 'success') {
+                this.digitalAssets = response.data;
+            } else {
+                this.showModal('Gagal memuat Aset Digital.');
+            }
+            this.isAssetsLoading = false;
         },
 
         // --- API Call ---
@@ -83,9 +96,11 @@ function dashboardApp() {
 
         // --- Fungsi Logout ---
         async logout(callServer = true) {
-            if (callServer) {
+            // Jika callServer true, kirim perintah ke backend untuk hapus token
+            if (callServer && this.sessionToken) {
                 await this.callApi({ action: 'logout' });
             }
+            // Selalu arahkan ke halaman login setelahnya
             window.location.href = 'index.html';
         },
 
