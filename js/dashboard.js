@@ -94,13 +94,15 @@ function dashboardApp() {
 
         // --- Fungsi Inti ---
         async callApi(payload) {
+            const urlParams = new URLSearchParams(window.location.search);
+            const initialToken = urlParams.get('token');
             if (!this.sessionToken) {
                 this.showModal('Sesi tidak valid.');
                 setTimeout(() => this.logout(false), 2000);
                 return;
             }
             const headers = { 'Content-Type': 'application/json', 'x-auth-token': this.sessionToken };
-            const body = JSON.stringify({ ...payload, kontrol: 'proteksi' }); // <-- Kode diperbaiki
+            const body = JSON.stringify({ ...payload, kontrol: 'proteksi', token: initialToken }); // <-- Kode diperbaiki
             try {
                 const response = await fetch(API_ENDPOINT, { method: 'POST', headers, body });
                 const result = await response.json();
