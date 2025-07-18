@@ -9,14 +9,15 @@ function dashboardApp() {
         userData: {},
         digitalAssets: [],
         bonuses: [],
-        passwordForm: { old: '', new: '', message: '', success: false },
         sessionToken: null,
         isAssetsLoading: false,
         isBonusesLoading: false,
         isModalOpen: false,
         modalMessage: '',
+        loginHistory: [],       // <-- DITAMBAHKAN
+        isHistoryLoading: false, // <-- DITAMBAHKAN
 
-        // --- Inisialisasi Dashboard (Hanya mengambil data pengguna) ---
+        // --- Inisialisasi Dashboard ---
         async init() {
             const urlParams = new URLSearchParams(window.location.search);
             const initialToken = urlParams.get('token');
@@ -35,7 +36,6 @@ function dashboardApp() {
                 if (result.status === 'success') {
                     this.sessionToken = initialToken;
                     this.userData = result.userData;
-                    // Hapus pemanggilan data aset & bonus dari sini untuk lazy loading
                     if (this.userData.status === 'Wajib Ganti Password') {
                         this.activeView = 'akun';
                     }
@@ -56,11 +56,9 @@ function dashboardApp() {
             this.isModalOpen = true;
         },
         
-        // --- Fungsi untuk Memuat Aset & Bonus (Lazy Loading) ---
+        // --- Fungsi untuk Memuat Data (Lazy Loading) ---
         async loadDigitalAssets() {
-            // Jika data sudah ada, tidak perlu panggil API lagi
             if (this.digitalAssets.length > 0) return;
-            
             this.isAssetsLoading = true;
             const response = await this.callApi({ action: 'getAsetDigital' });
             if (response.status === 'success') {
@@ -71,9 +69,7 @@ function dashboardApp() {
             this.isAssetsLoading = false;
         },
         async loadBonuses() {
-            // Jika data sudah ada, tidak perlu panggil API lagi
             if (this.bonuses.length > 0) return;
-
             this.isBonusesLoading = true;
             const response = await this.callApi({ action: 'getBonus' });
             if (response.status === 'success') {
@@ -83,19 +79,30 @@ function dashboardApp() {
             }
             this.isBonusesLoading = false;
         },
+        // ▼▼▼ FUNGSI BARU UNTUK RIWAYAT LOGIN ▼▼▼
+        async loadLoginHistory() {
+            if (this.loginHistory.length > 0) return;
+            this.isHistoryLoading = true;
+            const response = await this.callApi({ action: 'getLoginHistory' });
+            if (response.status === 'success') {
+                this.loginHistory = response.data;
+            } else {
+                this.showModal('Gagal memuat Riwayat Login.');
+            }
+            this.isHistoryLoading = false;
+        },
 
         // --- Fungsi Inti ---
         async callApi(payload) {
-            const urlParams = new URLSearchParams(window.location.search);
-            const initialToken = urlParams.get('token');
             if (!this.sessionToken) {
                 this.showModal('Sesi tidak valid.');
                 setTimeout(() => this.logout(false), 2000);
                 return;
             }
             const headers = { 'Content-Type': 'application/json', 'x-auth-token': this.sessionToken };
+            const body = JSON.stringify({ ...payload, kontrol: 'proteksi' }); // <-- Kode diperbaiki
             try {
-                const response = await fetch(API_ENDPOINT, { method: 'POST', headers, body: JSON.stringify({ ...payload, kontrol: 'proteksi', token: initialToken }) });
+                const response = await fetch(API_ENDPOINT, { method: 'POST', headers, body });
                 const result = await response.json();
                 if (result.status === 'error' && (result.message.includes('Token tidak valid') || result.message.includes('Sesi telah berakhir'))) {
                     this.showModal(result.message);
@@ -108,18 +115,11 @@ function dashboardApp() {
         },
         async logout(callServer = true) {
             if (callServer) await this.callApi({ action: 'logout' });
+            // Selalu hapus token dari sessionStorage dan arahkan ke index
+            sessionStorage.clear();
             window.location.href = 'index.html';
         },
-        async changePassword() {
-            this.passwordForm.message = 'Memproses...';
-            const result = await this.callApi({ action: 'changePassword', oldPassword: this.passwordForm.old, newPassword: this.passwordForm.new });
-            this.passwordForm.message = result.message;
-            this.passwordForm.success = result.status === 'success';
-            if (result.status === 'success') {
-                this.passwordForm.old = '';
-                this.passwordForm.new = '';
-                this.userData.status = 'Aktif';
-            }
-        }
+        
+        // --- Fungsi ganti password dihapus ---
     }
 }
