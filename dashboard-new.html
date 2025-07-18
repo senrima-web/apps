@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Proteksi Senrima</title>
+    <title>Dashboard - Senrima Tools</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
@@ -35,14 +35,36 @@
             :class="{'translate-x-0': isSidebarOpen, '-translate-x-full': !isSidebarOpen}"
         >
             <div class="p-4 flex items-center justify-center border-b h-16"><span class="text-2xl font-bold text-gray-800">Dashboard</span></div>
+            
             <div class="flex-1 mt-6 px-4 space-y-2">
                 <a href="#" @click.prevent="activeView = 'beranda'; isSidebarOpen = false" :class="activeView === 'beranda' ? 'menu-active' : ''" class="flex items-center px-4 py-2.5 text-gray-600 hover:bg-gray-100 rounded-lg">Beranda</a>
                 <a href="#" @click.prevent="activeView = 'aset'; loadDigitalAssets(); isSidebarOpen = false" :class="activeView === 'aset' ? 'menu-active' : ''" class="flex items-center px-4 py-2.5 text-gray-600 hover:bg-gray-100 rounded-lg">Aset Digital</a>
                 <a href="#" @click.prevent="activeView = 'bonus'; loadBonuses(); isSidebarOpen = false" :class="activeView === 'bonus' ? 'menu-active' : ''" class="flex items-center px-4 py-2.5 text-gray-600 hover:bg-gray-100 rounded-lg">Bonus</a>
+                <a href="#" @click.prevent="activeView = 'akun'; loadLoginHistory(); isSidebarOpen = false" :class="activeView === 'akun' ? 'menu-active' : ''" class="flex items-center px-4 py-2.5 text-gray-600 hover:bg-gray-100 rounded-lg">Akun Saya</a>
+            </div>
 
+            <div class="p-4 border-t"><button @click="logout()" class="w-full flex items-center justify-center px-4 py-2.5 text-red-600 hover:bg-red-100 rounded-lg font-semibold">Keluar</button></div>
+        </nav>
+        
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <header class="flex justify-between items-center p-4 bg-white border-b shadow-sm h-16">
+                <button @click="isSidebarOpen = true" class="lg:hidden text-gray-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg></button>
+                <div class="flex items-center bg-gray-100 hover:bg-gray-200 rounded-full pl-4 pr-2 py-2 ml-auto cursor-pointer">
+                    <span class="font-semibold text-gray-700 text-sm mr-3" x-text="userData.nama || 'Pengguna'"></span>
+                    <img class="w-8 h-8 rounded-full" src="favicon.ico" alt="Ikon Pengguna">
+                </div>
+            </header>
+            
+            <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-6">
+                <div x-show="activeView === 'beranda'"><h3 class="text-gray-800 text-3xl font-medium">Beranda</h3></div>
+                
+                <div x-show="activeView === 'aset'"></div>
+
+                <div x-show="activeView === 'bonus'"></div>
+                
                 <div x-show="activeView === 'akun'">
                     <h3 class="text-gray-800 text-3xl font-medium">Akun Saya</h3>
-                
+                    
                     <div class="mt-6 bg-white p-6 rounded-lg shadow-md max-w-lg">
                         <div class="space-y-4">
                             <div>
@@ -60,7 +82,7 @@
                         </div>
                         <button @click="logout()" class="mt-6 w-full bg-yellow-500 text-white py-2 px-4 rounded-md hover:bg-yellow-600">Ubah Password</button>
                     </div>
-                
+
                     <h4 class="text-gray-700 text-2xl font-medium mt-10">5 Riwayat Login Terakhir</h4>
                     <div x-show="isHistoryLoading" class="mt-4">Memuat riwayat...</div>
                     <div x-show="!isHistoryLoading" class="mt-4 bg-white rounded-lg shadow-md overflow-hidden">
@@ -83,69 +105,12 @@
                         </table>
                     </div>
                 </div>
-            
-            </div>
-            <div class="p-4 border-t"><button @click="logout()" class="w-full flex items-center justify-center px-4 py-2.5 text-red-600 hover:bg-red-100 rounded-lg font-semibold">Keluar</button></div>
-        </nav>
-        
-        <div class="flex-1 flex flex-col overflow-hidden">
-            <header class="flex justify-between items-center p-4 bg-white border-b shadow-sm h-16">
-                <button @click="isSidebarOpen = true" class="lg:hidden text-gray-500"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg></button>
-                <div class="flex items-center bg-gray-100 hover:bg-gray-200 rounded-full pl-4 pr-2 py-2 ml-auto cursor-pointer">
-                    <span class="font-semibold text-gray-700 text-sm mr-3" x-text="userData.nama || 'Pengguna'"></span>
-                    <img class="w-8 h-8 rounded-full" src="favicon.ico" alt="Ikon Pengguna">
-                </div>
-            </header>
-            
-            <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-6">
-                <div x-show="activeView === 'beranda'"><h3 class="text-gray-800 text-3xl font-medium">Beranda</h3></div>
-                
-                <div x-show="activeView === 'aset'">
-                    <h3 class="text-gray-800 text-3xl font-medium">Aset Digital Anda</h3>
-                    <div x-show="isAssetsLoading" class="mt-8 text-center"><p>Memuat aset...</p></div>
-                    <div x-show="!isAssetsLoading && digitalAssets.length > 0" class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                        <template x-for="(asset, index) in digitalAssets" :key="index">
-                            <div class="bg-white rounded-lg shadow-md overflow-hidden flex flex-col h-full">
-                                <div class="aspect-video bg-gray-200"><img :src="asset.URLGambar" :alt="asset.NamaAset" class="w-full h-full object-cover"></div>
-                                <div class="p-4 flex flex-col flex-grow">
-                                    <h4 class="text-lg font-semibold text-gray-800 line-clamp-2 mb-2" x-text="asset.NamaAset"></h4>
-                                    <p class="text-gray-600 text-sm flex-grow line-clamp-3 mb-4" x-text="asset.Deskripsi"></p>
-                                    <a :href="`${asset.URLTujuan}?idapp=${asset.IDapp}&token=${sessionToken}`" target="_blank" class="mt-auto block w-full text-center bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 font-semibold">Akses Aset</a>
-                                </div>
-                            </div>
-                        </template>
-                    </div>
-                    <div x-show="!isAssetsLoading && digitalAssets.length === 0" class="mt-8 text-center bg-white p-8 rounded-lg shadow"><p class="text-gray-500">Anda belum memiliki aset digital.</p></div>
-                </div>
-
-                <div x-show="activeView === 'bonus'">
-                    <h3 class="text-gray-800 text-3xl font-medium">Bonus Untuk Anda</h3>
-                    <div x-show="isBonusesLoading" class="mt-8 text-center"><p>Memuat bonus...</p></div>
-                    <div x-show="!isBonusesLoading && bonuses.length > 0" class="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <template x-for="(bonus, index) in bonuses" :key="index">
-                            <div class="bg-white rounded-lg shadow-md p-6 flex flex-col h-full">
-                                <h4 class="text-xl font-semibold text-gray-800 line-clamp-2 mb-2" x-text="bonus.Judul"></h4>
-                                <p class="text-gray-600 text-sm flex-grow line-clamp-3 mb-4" x-text="bonus.Deskripsi"></p>
-                                <a :href="`${bonus.Url}?idbonus=${bonus.IDbonus}&token=${sessionToken}`" target="_blank" class="mt-auto block w-full text-center bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 font-semibold">Akses Bonus</a>
-                            </div>
-                        </template>
-                    </div>
-                    <div x-show="!isBonusesLoading && bonuses.length === 0" class="mt-8 text-center bg-white p-8 rounded-lg shadow"><p class="text-gray-500">Saat ini tidak ada bonus yang tersedia untuk Anda.</p></div>
-                </div>
-                
-                <div x-show="activeView === 'akun'"><h3 class="text-gray-800 text-3xl font-medium">Akun Saya</h3></div>
             </main>
         </div>
     </div>
     
-    <div x-show="isModalOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4" x-cloak>
-        <div @click.outside="isModalOpen = false" class="w-full max-w-sm bg-white rounded-lg shadow-xl p-6 text-center">
-            <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100"><svg class="h-6 w-6 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126z" /></svg></div>
-            <h3 class="mt-4 text-lg font-medium text-gray-900">Pemberitahuan</h3>
-            <p class="mt-2 text-sm text-gray-600" x-text="modalMessage"></p>
-            <div class="mt-5"><button @click="isModalOpen = false" type="button" class="w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700">Oke</button></div>
+    <div x-show="isModalOpen" class="fixed inset-0 z-50 ... " x-cloak>
         </div>
-    </div>
 
     <script src="js/dashboard.js"></script>
 </body>
