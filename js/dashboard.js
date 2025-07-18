@@ -14,8 +14,6 @@ function dashboardApp() {
         isBonusesLoading: false,
         isModalOpen: false,
         modalMessage: '',
-        loginHistory: [],       // <-- DITAMBAHKAN
-        isHistoryLoading: false, // <-- DITAMBAHKAN
 
         // --- Inisialisasi Dashboard ---
         async init() {
@@ -37,7 +35,7 @@ function dashboardApp() {
                     this.sessionToken = initialToken;
                     this.userData = result.userData;
                     if (this.userData.status === 'Wajib Ganti Password') {
-                        this.activeView = 'akun';
+                        this.activeView = 'akun'; // Arahkan ke akun untuk ganti password awal
                     }
                     this.isLoading = false;
                 } else {
@@ -79,18 +77,6 @@ function dashboardApp() {
             }
             this.isBonusesLoading = false;
         },
-        // ▼▼▼ FUNGSI BARU UNTUK RIWAYAT LOGIN ▼▼▼
-        async loadLoginHistory() {
-            if (this.loginHistory.length > 0) return;
-            this.isHistoryLoading = true;
-            const response = await this.callApi({ action: 'getLoginHistory' });
-            if (response.status === 'success') {
-                this.loginHistory = response.data;
-            } else {
-                this.showModal('Gagal memuat Riwayat Login.');
-            }
-            this.isHistoryLoading = false;
-        },
 
         // --- Fungsi Inti ---
         async callApi(payload) {
@@ -102,7 +88,7 @@ function dashboardApp() {
                 return;
             }
             const headers = { 'Content-Type': 'application/json', 'x-auth-token': this.sessionToken };
-            const body = JSON.stringify({ ...payload, kontrol: 'proteksi', token: initialToken }); // <-- Kode diperbaiki
+            const body = JSON.stringify({ ...payload, kontrol: 'proteksi', token: initialToken });
             try {
                 const response = await fetch(API_ENDPOINT, { method: 'POST', headers, body });
                 const result = await response.json();
@@ -117,11 +103,8 @@ function dashboardApp() {
         },
         async logout(callServer = true) {
             if (callServer) await this.callApi({ action: 'logout' });
-            // Selalu hapus token dari sessionStorage dan arahkan ke index
             sessionStorage.clear();
             window.location.href = 'index.html';
-        },
-        
-        // --- Fungsi ganti password dihapus ---
+        }
     }
 }
