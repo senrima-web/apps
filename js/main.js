@@ -1,7 +1,48 @@
-// File: /js/main.js
+const API_ENDPOINT = "https://api.senrima.web.id";
 
-// ‼️ PASTIKAN URL INI SAMA DENGAN YANG ADA DI FILE HTML LAINNYA
-const API_ENDPOINT = "https://wmalam.senrima-ms.workers.dev";
+// Fungsi Alpine.js baru untuk mengelola state
+function app() {
+    return {
+        profile: {
+            show: false,
+            loading: true,
+            data: {}
+        },
+        init() {
+            // Cek apakah ada hash di URL
+            const hash = window.location.hash.substring(1); // Ambil #/sandy -> /sandy
+            if (hash && hash.startsWith('/')) {
+                const username = hash.substring(1); // Ambil /sandy -> sandy
+                if (username) {
+                    this.profile.show = true;
+                    this.loadPublicProfile(username);
+                }
+            } else {
+                // Jika tidak ada hash, jalankan setup halaman login
+                setupLoginPage();
+            }
+        },
+        async loadPublicProfile(username) {
+            this.profile.loading = true;
+            const response = await fetch(API_ENDPOINT, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    kontrol: 'proteksi',
+                    action: 'getPublicProfile',
+                    username: username
+                })
+            });
+            const result = await response.json();
+            if (result.status === 'success') {
+                this.profile.data = result.data;
+            } else {
+                this.profile.data = { nama: 'Profil Tidak Ditemukan', username: '404' };
+            }
+            this.profile.loading = false;
+        }
+    };
+}
 
 /**
  * Menampilkan pesan status kepada pengguna.
