@@ -1,3 +1,5 @@
+Versi Stabil 18/07/2025
+
 const API_ENDPOINT = "https://api.senrima.web.id";
 
 function dashboardApp() {
