@@ -132,19 +132,27 @@ function setupRegisterPage() {
     const form = document.getElementById('register-form');
     let angka1, angka2;
 
+    // Fungsi untuk membuat soal matematika baru
     function generateCaptcha() {
         angka1 = Math.floor(Math.random() * 10) + 1;
         angka2 = Math.floor(Math.random() * 10) + 1;
         questionEl.textContent = `${angka1} + ${angka2}`;
     }
-    generateCaptcha();
+    generateCaptcha(); // Langsung buat soal saat halaman dimuat
 
+    // Event saat form disubmit
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const nama = document.getElementById('register-nama').value;
         const email = document.getElementById('register-email').value;
         const jawaban = document.getElementById('register-captcha').value;
-        await callPublicApi({ action: 'register', nama, email, angka1, angka2, jawaban }, 'register-btn');
+        
+        const result = await callPublicApi({ action: 'register', nama, email, angka1, angka2, jawaban }, 'register-btn');
+        
+        // Jika pendaftaran gagal (misal jawaban salah), buat soal baru
+        if (result.status !== 'success') {
+            generateCaptcha();
+        }
     });
 }
 
@@ -178,16 +186,22 @@ function setupForgotPasswordPage() {
 }
 
 function setupVerificationPage() {
+    // Ambil token dari URL
     const token = new URLSearchParams(window.location.search).get('token');
+    
+    // Jika tidak ada token, tampilkan error
     if (!token) {
         document.getElementById('main-title').textContent = 'Error!';
         setStatusMessage('Token verifikasi tidak ditemukan.', 'error');
         return;
     }
+
+    // Panggil API untuk memverifikasi token
     (async () => {
         const result = await callPublicApi({ action: 'verifyEmail', token });
         if (result.status === 'success') {
             document.getElementById('main-title').textContent = 'Verifikasi Berhasil!';
+            // Arahkan ke halaman login setelah 3 detik
             setTimeout(() => { window.location.href = 'index.html'; }, 3000);
         } else {
              document.getElementById('main-title').textContent = 'Verifikasi Gagal!';
