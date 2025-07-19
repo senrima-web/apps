@@ -82,20 +82,20 @@ function dashboardApp() {
             this.isBonusesLoading = false;
         },
 
-        async checkConnectionStatus() {
-            this.showModal('Memeriksa status koneksi...');
-            const response = await this.callApi({ action: 'getConnectionStatus' });
-    
-            if (response.status === 'success') {
-                this.userData.isTelegramConnected = response.isTelegramConnected;
-                if (response.isTelegramConnected) {
-                    this.showModal('Sukses! Akun Telegram sudah terhubung.');
+        async startTelegramVerification() {
+                this.showModal('Membuat link aman...');
+                
+                // 1. Minta token sekali pakai dari server
+                const response = await this.callApi({ action: 'generateTelegramToken' });
+        
+                if (response.status === 'success' && response.token) {
+                    // 2. Jika dapat token, buat link t.me dan buka di tab baru
+                    const telegramLink = `https://t.me/senrima8n8_bot?start=${response.token}`;
+                    window.open(telegramLink, '_blank');
+                    this.showModal('Silakan lanjutkan verifikasi di aplikasi Telegram Anda.');
                 } else {
-                    this.showModal('Akun Telegram masih belum terhubung.');
+                    this.showModal('Gagal membuat link verifikasi. Coba lagi.');
                 }
-            } else {
-                this.showModal('Gagal memeriksa status.');
-            }
         },
 
         // --- Fungsi Inti ---
