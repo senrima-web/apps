@@ -89,7 +89,81 @@
                     <div x-show="!isBonusesLoading && bonuses.length === 0" class="mt-8 text-center bg-white p-8 rounded-lg shadow"><p class="text-gray-500">Saat ini tidak ada bonus yang tersedia.</p></div>
                 </div>
                 
-                <div x-show="activeView === 'akun'"><h3 class="text-gray-800 text-3xl font-medium">Akun Saya</h3></div>
+                <div x-show="activeView === 'akun'">
+                    <h3 class="text-gray-800 text-3xl font-medium mb-8">Akun Saya</h3>
+                
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        <div class="lg:col-span-2 space-y-8">
+                            <div class="bg-white p-6 rounded-lg shadow-md">
+                                <h4 class="text-xl font-semibold text-gray-800 border-b pb-4 mb-6">Informasi Profil</h4>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label for="nama" class="block text-sm font-medium text-gray-600">Nama Lengkap</label>
+                                        <input type="text" id="nama" x-model="userData.nama" class="mt-1 w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                    <div>
+                                        <label for="email" class="block text-sm font-medium text-gray-600">Email</label>
+                                        <input type="email" id="email" x-model="userData.email" disabled class="mt-1 w-full p-3 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed">
+                                    </div>
+                                    <div class="text-right pt-2">
+                                        <button class="bg-blue-600 text-white py-2 px-6 rounded-lg hover:bg-blue-700 font-semibold transition">Simpan Perubahan</button>
+                                    </div>
+                                </div>
+                            </div>
+                
+                            <div class="bg-white p-6 rounded-lg shadow-md">
+                                <h4 class="text-xl font-semibold text-gray-800 border-b pb-4 mb-6">Ganti Password</h4>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label for="pass-lama" class="block text-sm font-medium text-gray-600">Password Lama</label>
+                                        <input type="password" id="pass-lama" class="mt-1 w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                    <div>
+                                        <label for="pass-baru" class="block text-sm font-medium text-gray-600">Password Baru</label>
+                                        <input type="password" id="pass-baru" class="mt-1 w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                    <div class="text-right pt-2">
+                                        <button class="bg-blue-600 text-white py-2 px-6 rounded-lg hover:bg-blue-700 font-semibold transition">Ubah Password</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                
+                        <div class="bg-white p-6 rounded-lg shadow-md">
+                            <h4 class="text-xl font-semibold text-gray-800 border-b pb-4 mb-6">Preferensi Notifikasi</h4>
+                            
+                            <div class="space-y-3">
+                                <h5 class="font-semibold text-gray-700">Telegram</h5>
+                                <p class="text-sm text-gray-500">Dapatkan notifikasi instan seperti OTP dan info penting lainnya melalui Telegram.</p>
+                                <div x-show="!userData.isTelegramConnected">
+                                    <p class="text-xs text-yellow-600 bg-yellow-100 p-2 rounded-md">Status: Belum Terhubung</p>
+                                    <a href="https://t.me/NAMA_BOT_ANDA?start=TOKEN_VERIFIKASI_UNIK" target="_blank" class="mt-2 block w-full text-center bg-sky-500 text-white py-2 px-4 rounded-md hover:bg-sky-600">
+                                        Hubungkan ke Telegram
+                                    </a>
+                                </div>
+                                <div x-show="userData.isTelegramConnected">
+                                     <p class="text-xs text-green-600 bg-green-100 p-2 rounded-md">Status: Terhubung</p>
+                                     <button class="mt-2 w-full text-center bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600">
+                                        Putuskan Hubungan
+                                     </button>
+                                </div>
+                            </div>
+                            
+                            <hr class="my-6">
+                
+                            <div class="space-y-3">
+                                <h5 class="font-semibold text-gray-700">WhatsApp</h5>
+                                <p class="text-sm text-gray-500">Fitur notifikasi via WhatsApp akan segera hadir. Tunggu update dari kami ya, Bro!</p>
+                                <button disabled class="mt-2 w-full text-center bg-gray-300 text-gray-500 py-2 px-4 rounded-md cursor-not-allowed">
+                                    Segera Hadir
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                
             </main>
         </div>
     </div>
