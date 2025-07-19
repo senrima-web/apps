@@ -135,17 +135,27 @@
                             <div class="space-y-3">
                                 <h5 class="font-semibold text-gray-700">Telegram</h5>
                                 <p class="text-sm text-gray-500">Dapatkan notifikasi instan seperti OTP dan info penting lainnya melalui Telegram.</p>
+
                                 <div x-show="!userData.isTelegramConnected" class="space-y-2">
                                     <p class="text-xs text-yellow-600 bg-yellow-100 p-2 rounded-md">Status: Belum Terhubung</p>
                                     <div class="flex space-x-2">
-                                        <a href="https://t.me/senrima8n8_bot?start=' + userData.uuid" target="_blank" class="flex-grow text-center bg-sky-500 text-white py-2 px-4 rounded-md hover:bg-sky-600">
-                                            Hubungkan
-                                        </a>
+                                        <template x-if="userData.uuid">
+                                            <a :href="'https://t.me/senrima8n8_bot?start=' + userData.uuid" target="_blank" class="flex-grow text-center bg-sky-500 text-white py-2 px-4 rounded-md hover:bg-sky-600">
+                                                Hubungkan
+                                            </a>
+                                        </template>
+                                        <template x-if="!userData.uuid">
+                                            <span class="flex-grow text-center bg-gray-300 text-gray-500 py-2 px-4 rounded-md cursor-not-allowed">
+                                                Memuat...
+                                            </span>
+                                        </template>
+                                        
                                         <button @click="checkConnectionStatus()" class="bg-gray-200 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-300">
                                             Cek Status
                                         </button>
                                     </div>
                                 </div>
+                                
                                 <div x-show="userData.isTelegramConnected">
                                      <p class="text-xs text-green-600 bg-green-100 p-2 rounded-md">Status: Terhubung</p>
                                      <button class="mt-2 w-full text-center bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600">
