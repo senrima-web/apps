@@ -15,6 +15,7 @@ function dashboardApp() {
         isAssetsLoading: false,
         isBonusesLoading: false,
         isModalOpen: false,
+        isTelegramConnected: false,
         modalMessage: '',
 
         // --- Inisialisasi Dashboard ---
