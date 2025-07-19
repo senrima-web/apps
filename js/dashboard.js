@@ -81,6 +81,22 @@ function dashboardApp() {
             this.isBonusesLoading = false;
         },
 
+        async checkConnectionStatus() {
+            this.showModal('Memeriksa status koneksi...');
+            const response = await this.callApi({ action: 'getConnectionStatus' });
+    
+            if (response.status === 'success') {
+                this.userData.isTelegramConnected = response.isTelegramConnected;
+                if (response.isTelegramConnected) {
+                    this.showModal('Sukses! Akun Telegram sudah terhubung.');
+                } else {
+                    this.showModal('Akun Telegram masih belum terhubung.');
+                }
+            } else {
+                this.showModal('Gagal memeriksa status.');
+            }
+        },
+
         // --- Fungsi Inti ---
         async callApi(payload) {
             const urlParams = new URLSearchParams(window.location.search);
