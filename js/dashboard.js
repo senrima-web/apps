@@ -9,6 +9,7 @@ function dashboardApp() {
         isSidebarOpen: false,
         activeView: 'beranda',
         userData: {},
+        uuid: '',
         digitalAssets: [],
         bonuses: [],
         sessionToken: null,
