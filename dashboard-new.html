@@ -138,7 +138,7 @@
                                 <div x-show="!userData.isTelegramConnected" class="space-y-2">
                                     <p class="text-xs text-yellow-600 bg-yellow-100 p-2 rounded-md">Status: Belum Terhubung</p>
                                     <div class="flex space-x-2">
-                                        <a href="https://t.me/senrima8n8_bot?start=TOKEN_VERIFIKASI_UNIK" target="_blank" class="flex-grow text-center bg-sky-500 text-white py-2 px-4 rounded-md hover:bg-sky-600">
+                                        <a href="https://t.me/senrima8n8_bot?start=' + userData.uuid" target="_blank" class="flex-grow text-center bg-sky-500 text-white py-2 px-4 rounded-md hover:bg-sky-600">
                                             Hubungkan
                                         </a>
                                         <button @click="checkConnectionStatus()" class="bg-gray-200 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-300">
