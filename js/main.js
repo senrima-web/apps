@@ -114,13 +114,10 @@ function otpApp() {
 function forgotPasswordApp() {
     return {
         isLoading: false,
-        isCoolingDown: false, // <-- TAMBAHKAN PROPERTI BARU
-        cooldownTimer: 60,   // <-- TAMBAHKAN PROPERTI BARU
         email: '',
         status: { message: '', success: false },
         async submit() {
             this.isLoading = true;
-            this.isCoolingDown = true; // <-- AKTIFKAN COOLDOWN
             this.status = { message: '', success: false };
             try {
                 const response = await fetch(API_ENDPOINT, {
