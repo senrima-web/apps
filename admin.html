@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Proteksi Senrima</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        body { font-family: 'Poppins', sans-serif; }
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+<body class="bg-gray-100" x-data="adminPanel()" x-init="init()">
+    <div class="p-4 md:p-8">
+
+        <h1 class="text-3xl font-bold text-gray-800">Admin Panel</h1>
+        <p class="text-gray-500 mb-8">Manajemen Pengguna Proteksi Senrima</p>
+
+        <div x-show="view === 'loading'" x-cloak class="text-center p-8 bg-white rounded-lg shadow-md">
+            <p>Memverifikasi sesi Anda...</p>
+        </div>
+        
+        <div x-show="view === 'needs_otp'" x-cloak class="w-full max-w-sm mx-auto bg-white p-8 rounded-lg shadow-md">
+            <h2 class="text-xl font-semibold text-center text-gray-800">Verifikasi OTP</h2>
+            <p class="text-sm text-center text-gray-500 mt-2 mb-6" x-text="message"></p>
+            <input type="text" x-model="otp" placeholder="Masukkan 6 digit OTP" maxlength="6" class="w-full p-3 text-center text-lg tracking-widest border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+            <button @click="verifyOtp()" class="w-full mt-4 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 font-semibold transition">Verifikasi</button>
+        </div>
+
+        <div x-show="view === 'authorized'" x-cloak>
+            <div class="mb-4">
+                <input type="text" x-model="searchQuery" placeholder="Cari berdasarkan nama, email, atau username..." class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Username</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <template x-for="user in filteredUsers" :key="user.uuid">
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-gray-900" x-text="user.nama"></div>
+                                    <div class="text-sm text-gray-500" x-text="user.email"></div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700" x-text="user.username"></td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span x-text="user.status" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full" :class="{ 'bg-green-100 text-green-800': user.status === 'Aktif', 'bg-yellow-100 text-yellow-800': user.status === 'Wajib Ganti Password', 'bg-red-100 text-red-800': user.status === 'Nonaktif', 'bg-blue-100 text-blue-800': user.status === 'Admin' }"></span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                                    <button class="text-indigo-600 hover:text-indigo-900">Reset Pass</button>
+                                    <button class="text-red-600 hover:text-red-900">Nonaktifkan</button>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div x-show="view === 'error'" x-cloak class="text-center p-8 bg-white rounded-lg shadow-md">
+            <h2 class="text-xl font-semibold text-red-600">Akses Ditolak</h2>
+            <p class="text-gray-500 mt-2" x-text="message"></p>
+            <a href="index.html" class="inline-block mt-4 text-blue-600 hover:underline">Kembali ke Halaman Login</a>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script>
+        function adminPanel() {
+            return {
+                view: 'loading', // 'loading', 'needs_otp', 'authorized', 'error'
+                message: '',
+                sessionToken: '',
+                otp: '',
+                users: [],
+                searchQuery: '',
+
+                async init() {
+                    const params = new URLSearchParams(window.location.search);
+                    this.sessionToken = params.get('token');
+                    if (!this.sessionToken) {
+                        this.view = 'error';
+                        this.message = 'Token sesi tidak ditemukan.';
+                        return;
+                    }
+                    // Minta akses dan trigger OTP
+                    const response = await callApi({
+                        token: this.sessionToken,
+                        action: 'requestAdminAccess',
+                    });
+                    this.message = response.message;
+                    if (response.status === 'otp_sent') {
+                        this.view = 'needs_otp';
+                    } else {
+                        this.view = 'error';
+                    }
+                },
+
+                async verifyOtp() {
+                    const response = await callApi({
+                        token: this.sessionToken,
+                        action: 'verifyAdminOtp',
+                        payload: { otp: this.otp }
+                    });
+
+                    this.message = response.message;
+                    if (response.status === 'success') {
+                        this.users = response.data;
+                        this.view = 'authorized';
+                    } else {
+                        // Tetap di halaman OTP jika salah
+                        this.otp = '';
+                    }
+                },
+
+                get filteredUsers() {
+                    if (!this.searchQuery) return this.users;
+                    return this.users.filter(user => {
+                        const query = this.searchQuery.toLowerCase();
+                        return user.nama.toLowerCase().includes(query) ||
+                               user.email.toLowerCase().includes(query) ||
+                               user.username.toLowerCase().includes(query);
+                    });
+                }
+            }
+        }
+    </script>
+</body>
+</html>
