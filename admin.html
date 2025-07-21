@@ -108,22 +108,27 @@
                 }
             },
 
-            // FUNGSI VERIFIKASI OTP: Dijalankan saat tombol diklik
-            async verifyOtp() {
-                // Panggil callApi untuk kedua kali
-                const response = await this.callApi({
-                    action: 'verifyAdminOtp',
-                    payload: { payload: { otp: this.otp } } // Sesuaikan payload jika perlu
-                });
-                
-                this.message = response.message;
-                if (response.status === 'success') {
-                    this.users = response.data;
-                    this.view = 'authorized';
-                } else {
-                    this.otp = ''; // Kosongkan OTP jika salah
-                }
-            },
+            // FUNGSI VERIFIKASI OTP: Dijalankan saat tombol diklik// Lokasi: Di dalam file admin.html
+
+                async verifyOtp() {
+                    const response = await this.callApi({
+                        action: 'verifyAdminOtp',
+                        payload: { payload: { otp: this.otp } }
+                    });
+                    
+                    // ===============================================================
+                    // INI KODE MATA-MATA YANG KITA PASANG KEMARIN
+                    console.log("RESPONS DARI SERVER:", response); 
+                    // ===============================================================
+                    
+                    this.message = response.message;
+                    if (response.status === 'success') {
+                        this.users = response.data;
+                        this.view = 'authorized';
+                    } else {
+                        this.otp = ''; 
+                    }
+                },
             
             // FUNGSI BANTUAN API: Harus ada di dalam return ini!
             async callApi(payload) {
