@@ -22,7 +22,7 @@
     
     <div x-show="isLoading" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-100/80 backdrop-blur-sm">
         <div class="text-center">
-            <svg class="animate-spin h-10 w-10 text-blue-600 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+            <svg class="animate-spin h-10 w-10 text-blue-600 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path></svg>
             <h2 class="text-xl font-semibold text-gray-700">Memuat Sesi Anda...</h2>
         </div>
     </div>
@@ -66,7 +66,7 @@
                                 <div class="p-4 flex flex-col flex-grow">
                                     <h4 class="text-lg font-semibold text-gray-800 line-clamp-2 mb-2" x-text="asset.NamaAset"></h4>
                                     <p class="text-gray-600 text-sm flex-grow line-clamp-3 mb-4" x-text="asset.Deskripsi"></p>
-                                    <a :href="`${asset.URLTujuan}?idapp=${asset.IDapp}&token=${sessionToken}`" target="_blank" class="mt-auto block w-full text-center bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition">Buka</a>
+                                    <a :href="`${asset.URLTujuan}?idapp=${asset.IDapp}&token=${sessionToken}`" target="_blank" class="mt-auto block w-full text-center bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700">Akses Sekarang</a>
                                 </div>
                             </div>
                         </template>
@@ -82,7 +82,7 @@
                             <div class="bg-white rounded-lg shadow-md p-6 flex flex-col h-full">
                                 <h4 class="text-xl font-semibold text-gray-800 line-clamp-2 mb-2" x-text="bonus.Judul"></h4>
                                 <p class="text-gray-600 text-sm flex-grow line-clamp-3 mb-4" x-text="bonus.Deskripsi"></p>
-                                <a :href="`${bonus.Url}?idbonus=${bonus.IDbonus}&token=${sessionToken}`" target="_blank" class="mt-auto block w-full text-center bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition">Ambil Bonus</a>
+                                <a :href="`${bonus.Url}?idbonus=${bonus.IDbonus}&token=${sessionToken}`" target="_blank" class="mt-auto block w-full text-center bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700">Ambil Bonus</a>
                             </div>
                         </template>
                     </div>
@@ -135,6 +135,7 @@
                             <div class="space-y-3">
                                 <h5 class="font-semibold text-gray-700">Telegram</h5>
                                 <p class="text-sm text-gray-500">Dapatkan notifikasi instan seperti OTP dan info penting lainnya melalui Telegram.</p>
+
                                 <div x-show="!userData.isTelegramConnected" class="space-y-2">
                                     <p class="text-xs ...">Status: Belum Terhubung</p>
                                     <button @click="startTelegramVerification()" class="block w-full text-center bg-sky-500 text-white py-2 px-4 rounded-md hover:bg-sky-600">
@@ -163,15 +164,14 @@
                     </div>
                 </div>
 
-
-                
+            
             </main>
         </div>
     </div>
     
     <div x-show="isModalOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4" x-cloak>
         <div @click.outside="isModalOpen = false" class="w-full max-w-sm bg-white rounded-lg shadow-xl p-6 text-center">
-            <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100"><svg class="h-6 w-6 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></div>
+            <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100"><svg class="h-6 w-6 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="red" stroke-width="2"></circle><path stroke="red" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M15 9l-6 6M9 9l6 6"></path></svg></div>
             <h3 class="mt-4 text-lg font-medium text-gray-900">Pemberitahuan</h3>
             <p class="mt-2 text-sm text-gray-600" x-text="modalMessage"></p>
             <div class="mt-5"><button @click="isModalOpen = false" type="button" class="w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700">Oke</button></div>
