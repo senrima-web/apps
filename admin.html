@@ -31,39 +31,16 @@
         </div>
 
         <div x-show="view === 'authorized'" x-cloak>
-            <div class="mb-4">
-                <input type="text" x-model="searchQuery" placeholder="Cari berdasarkan nama, email, atau username..." class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-            </div>
-
-            <div class="bg-white rounded-lg shadow-md overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Username</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        <template x-for="user in filteredUsers" :key="user.uuid">
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-medium text-gray-900" x-text="user.nama"></div>
-                                    <div class="text-sm text-gray-500" x-text="user.email"></div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700" x-text="user.username"></td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span x-text="user.status" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full" :class="{ 'bg-green-100 text-green-800': user.status === 'Aktif', 'bg-yellow-100 text-yellow-800': user.status === 'Wajib Ganti Password', 'bg-red-100 text-red-800': user.status === 'Nonaktif', 'bg-blue-100 text-blue-800': user.status === 'Admin' }"></span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                                    <button class="text-indigo-600 hover:text-indigo-900">Reset Pass</button>
-                                    <button class="text-red-600 hover:text-red-900">Nonaktifkan</button>
-                                </td>
-                            </tr>
-                        </template>
-                    </tbody>
-                </table>
+            <div class="bg-white rounded-lg shadow-md p-8">
+                <h2 class="text-2xl font-semibold text-gray-800 border-b pb-4 mb-6">Data Admin Terverifikasi</h2>
+                <div class="space-y-4 text-lg">
+                    <p><strong>Nama:</strong> <span x-text="adminData.nama"></span></p>
+                    <p><strong>Username:</strong> <span x-text="adminData.username"></span></p>
+                    <p><strong>Status:</strong> <span x-text="adminData.status" class="px-2 py-1 text-sm font-semibold rounded-full" :class="{ 'bg-blue-100 text-blue-800': adminData.status === 'Admin' }"></span></p>
+                </div>
+                <div class="mt-8 border-t pt-6">
+                    <button @click="logout()" class="text-red-600 hover:underline">Keluar</button>
+                </div>
             </div>
         </div>
 
@@ -77,33 +54,23 @@
 <script>
     function adminPanel() {
         return {
-            // DEKLARASI PROPERTI
-            view: 'loading', // 'loading', 'needs_otp', 'authorized', 'error'
+            // Properti diubah, tidak ada lagi 'users' atau 'searchQuery'
+            view: 'loading',
             message: '',
             sessionToken: '',
             otp: '',
-            users: [],
-            searchQuery: '',
+            adminData: { nama: '', username: '', status: '' }, // Properti baru untuk data admin
 
-            // FUNGSI INIT: Dijalankan saat komponen dimuat
+            // FUNGSI INIT: Tidak berubah
             async init() {
                 const params = new URLSearchParams(window.location.search);
                 this.sessionToken = params.get('token');
-
-                    // ===============================================================
-                    // TAMBAHKAN BARIS MATA-MATA INI
-                    console.log('TOKEN DARI URL:', this.sessionToken);
-                    // ===============================================================
-                
                 if (!this.sessionToken) {
                     this.view = 'error';
-                    this.message = 'Token sesi tidak ditemukan.';
+                    this.message = 'Token sesi tidak ditemukan di URL.';
                     return;
                 }
-                
-                // Panggil callApi untuk pertama kali
                 const response = await this.callApi({ action: 'requestAdminAccess' });
-                
                 this.message = response.message;
                 if (response.status === 'otp_sent') {
                     this.view = 'needs_otp';
@@ -112,73 +79,46 @@
                 }
             },
 
-            // FUNGSI VERIFIKASI OTP: Dijalankan saat tombol diklik// Lokasi: Di dalam file admin.html
+            // FUNGSI VERIFIKASI OTP: Diubah total
+            async verifyOtp() {
+                this.view = 'loading'; // Tampilkan loading saat verifikasi
+                
+                // MEMANGGIL ACTION BARU: 'getDashboardData'
+                // Ini sama seperti yang dipakai dashboard user, tapi karena tokennya milik admin,
+                // kita akan dapat data admin. Jauh lebih efisien!
+                const response = await this.callApi({ action: 'getDashboardData' });
 
-                async verifyOtp() {
-                    const response = await this.callApi({
-                        action: 'verifyAdminOtp',
-                        payload: { payload: { otp: this.otp } }
-                    });
-                    
-                    // ===============================================================
-                    // INI KODE MATA-MATA YANG KITA PASANG KEMARIN
-                    console.log("RESPONS DARI SERVER:", response); 
-                    // ===============================================================
-                    
-                    this.message = response.message;
-                    if (response.status === 'success') {
-                        this.users = response.data;
-                        this.view = 'authorized';
-                    } else {
-                        this.otp = ''; 
-                    }
-                },
+                if (response.status === 'success') {
+                    // MENYIMPAN DATA KE 'adminData', BUKAN 'users'
+                    this.adminData = response.userData;
+                    this.view = 'authorized';
+                } else {
+                    this.view = 'error';
+                    this.message = response.message || 'Gagal memverifikasi sesi Anda.';
+                }
+            },
             
-            // FUNGSI BANTUAN API: Harus ada di dalam return ini!
+            // FUNGSI BANTUAN API: Tidak berubah
             async callApi(payload) {
                 try {
-                    const headers = { 
-                        'Content-Type': 'application/json', 
-                        'x-auth-token': this.sessionToken 
-                    };
+                    const headers = { 'Content-Type': 'application/json', 'x-auth-token': this.sessionToken };
                     const body = JSON.stringify({ ...payload, kontrol: 'proteksi' });
-                    
                     const response = await fetch("https://api.senrima.web.id", { method: 'POST', headers, body });
-                    if (!response.ok) {
-                        // Tangani error HTTP seperti 500, 404, dll.
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                     return await response.json();
                 } catch (e) {
-                    // Tangani error koneksi atau parsing JSON
-                    console.error("Error in callApi:", e);
-                    this.view = 'error'; // Pindahkan ke view error jika API gagal
-                    this.message = 'Gagal terhubung ke server. Periksa koneksi Anda.';
-                    return { status: 'error', message: this.message }; // Kembalikan objek error standar
+                    this.view = 'error';
+                    this.message = 'Gagal terhubung ke server.';
+                    return { status: 'error', message: this.message };
                 }
             },
 
-            // FUNGSI GETTER UNTUK FILTER PENCARIAN
-// GANTI FUNGSI LAMA INI DENGAN VERSI BARU YANG LEBIH TANGGUH
-            get filteredUsers() {
-                if (!this.searchQuery) {
-                    return this.users; // Jika tidak ada pencarian, langsung tampilkan semua user
-                }
-                
-                const query = this.searchQuery.toLowerCase();
-                
-                return this.users.filter(user => {
-                    // Cek dulu apakah datanya ada sebelum di-filter, untuk menghindari error
-                    const nama = user.nama || '';
-                    const email = user.email || '';
-                    const username = user.username || '';
-                    
-                    return nama.toLowerCase().includes(query) ||
-                           email.toLowerCase().includes(query) ||
-                           username.toLowerCase().includes(query);
-                });
+            // FUNGSI LOGOUT (Opsional, tapi bagus untuk ada)
+            async logout() {
+                await this.callApi({ action: 'logout' });
+                window.location.href = 'index.html';
             }
-        }; // <-- Kurung kurawal penutup untuk objek return
+        };
     }
 </script>
 </body>
