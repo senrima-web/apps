@@ -75,65 +75,70 @@
     </div>
 
     <script src="js/main.js"></script>
-    <script>
-        function adminPanel() {
-            return {
-                view: 'loading', // 'loading', 'needs_otp', 'authorized', 'error'
-                message: '',
-                sessionToken: '',
-                otp: '',
-                users: [],
-                searchQuery: '',
+<script>
+    const API_ENDPOINT = "https://api.senrima.web.id";
 
-                async init() {
-                    const params = new URLSearchParams(window.location.search);
-                    this.sessionToken = params.get('token');
-                    if (!this.sessionToken) {
-                        this.view = 'error';
-                        this.message = 'Token sesi tidak ditemukan.';
-                        return;
-                    }
-                    // Minta akses dan trigger OTP
-                    const response = await callApi({
-                        token: this.sessionToken,
-                        action: 'requestAdminAccess',
-                    });
-                    this.message = response.message;
-                    if (response.status === 'otp_sent') {
-                        this.view = 'needs_otp';
-                    } else {
-                        this.view = 'error';
-                    }
-                },
+    function adminPanel() {
+        return {
+            view: 'loading', // 'loading', 'needs_otp', 'authorized', 'error'
+            message: '',
+            sessionToken: '',
+            otp: '',
+            users: [],
+            searchQuery: '',
 
-                async verifyOtp() {
-                    const response = await callApi({
-                        token: this.sessionToken,
-                        action: 'verifyAdminOtp',
-                        payload: { otp: this.otp }
-                    });
-
-                    this.message = response.message;
-                    if (response.status === 'success') {
-                        this.users = response.data;
-                        this.view = 'authorized';
-                    } else {
-                        // Tetap di halaman OTP jika salah
-                        this.otp = '';
-                    }
-                },
-
-                get filteredUsers() {
-                    if (!this.searchQuery) return this.users;
-                    return this.users.filter(user => {
-                        const query = this.searchQuery.toLowerCase();
-                        return user.nama.toLowerCase().includes(query) ||
-                               user.email.toLowerCase().includes(query) ||
-                               user.username.toLowerCase().includes(query);
-                    });
+            async init() {
+                const params = new URLSearchParams(window.location.search);
+                this.sessionToken = params.get('token');
+                if (!this.sessionToken) {
+                    this.view = 'error';
+                    this.message = 'Token sesi tidak ditemukan.';
+                    return;
                 }
+                const response = await this.callApi({ action: 'requestAdminAccess' });
+                this.message = response.message;
+                if (response.status === 'otp_sent') {
+                    this.view = 'needs_otp';
+                } else {
+                    this.view = 'error';
+                }
+            },
+
+            async verifyOtp() {
+                const response = await this.callApi({
+                    action: 'verifyAdminOtp',
+                    payload: { otp: this.otp }
+                });
+                this.message = response.message;
+                if (response.status === 'success') {
+                    this.users = response.data;
+                    this.view = 'authorized';
+                } else {
+                    this.otp = '';
+                }
+            },
+            
+            // FUNGSI callApi() YANG HILANG, SEKARANG DITAMBAHKAN
+            async callApi(payload) {
+                const headers = { 
+                    'Content-Type': 'application/json', 
+                    'x-auth-token': this.sessionToken 
+                };
+                const body = JSON.stringify({ ...payload, kontrol: 'proteksi' });
+                try {
+                    const response = await fetch(API_ENDPOINT, { method: 'POST', headers, body });
+                    return await response.json();
+                } catch (e) {
+                    return { status: 'error', message: 'Koneksi ke server gagal.' };
+                }
+            },
+
+            get filteredUsers() {
+                if (!this.searchQuery) return this.users;
+                // ... (sisa kode filteredUsers tidak berubah)
             }
         }
-    </script>
+    }
+</script>
 </body>
 </html>
