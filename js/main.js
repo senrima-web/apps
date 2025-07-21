@@ -18,7 +18,7 @@ function app() {
             this.isLoading = true;
             this.status = { message: '', success: false };
             try {
-                sessionStorage.setItem('userEmailForOTP', this.loginData.email);
+                sessionStorage.setItem('loginEmail', this.loginData.email);
                 const response = await fetch(API_ENDPOINT, {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ kontrol: 'proteksi', action: 'requestOTP', email: this.loginData.email, password: this.loginData.password })
