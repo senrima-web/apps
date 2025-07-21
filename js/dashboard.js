@@ -116,7 +116,7 @@ function dashboardApp() {
             this.showModal('Membuat link aman...');
             const response = await this.callApi({ action: 'generateTelegramToken' });
             if (response.status === 'success' && response.token) {
-                const telegramLink = `https://t.me/NAMA_BOT_ANDA?start=${response.token}`; // GANTI NAMA_BOT_ANDA
+                const telegramLink = `https://t.me/senrima8n8_bot?start=${response.token}`; // GANTI NAMA_BOT_ANDA
                 window.open(telegramLink, '_blank');
                 this.showModal('Silakan lanjutkan verifikasi di aplikasi Telegram Anda.');
             } else {
