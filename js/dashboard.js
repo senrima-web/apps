@@ -1,4 +1,4 @@
-//Versi Stabil 18/07/2025
+//Versi Stabil 19/07/2025 (Perbaikan)
 
 const API_ENDPOINT = "https://api.senrima.web.id";
 
@@ -6,19 +6,18 @@ function dashboardApp() {
     return {
         // --- Properti ---
         isLoading: true,
-        isSidebarOpen: false,
+        isSidebarOpen: window.innerWidth > 768,
         activeView: 'beranda',
         userData: {},
-        uuid: '',
         digitalAssets: [],
         bonuses: [],
         sessionToken: null,
         isAssetsLoading: false,
         isBonusesLoading: false,
         isModalOpen: false,
-        isTelegramConnected: false,
         modalMessage: '',
         notificationPreference: '',
+        passwordData: { lama: '', baru: '' }, // Ditambahkan untuk form ganti password
 
         // --- Inisialisasi Dashboard ---
         async init() {
@@ -29,34 +28,25 @@ function dashboardApp() {
                 setTimeout(() => window.location.href = 'index.html', 2000);
                 return;
             }
+
+            // SIMPAN TOKEN SESI DAHULU
+            this.sessionToken = initialToken;
             
+            // PANGGIL API SATU KALI SAJA UNTUK DAPAT DATA AWAL
+            const result = await this.callApi({ action: 'getDashboardData' });
+
             if (result.status === 'success') {
                 this.userData = result.userData;
                 this.notificationPreference = result.userData.notifPreference || 'email';
-                this.isLoading = false;
-            } 
-            
-            try {
-                const response = await fetch(API_ENDPOINT, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ kontrol: 'proteksi', action: 'getDashboardData', token: initialToken })
-                });
-                const result = await response.json();
-                if (result.status === 'success') {
-                    this.sessionToken = initialToken;
-                    this.userData = result.userData;
-                    if (this.userData.status === 'Wajib Ganti Password') {
-                        this.activeView = 'akun'; // Arahkan ke akun untuk ganti password awal
-                    }
-                    this.isLoading = false;
-                } else {
-                    this.showModal(result.message);
-                    setTimeout(() => window.location.href = 'index.html', 2000);
+
+                if (this.userData.status === 'Wajib Ganti Password') {
+                    this.activeView = 'akun';
+                    this.showModal('Harap ganti password sementara Anda.');
                 }
-            } catch (e) {
-                this.showModal('Gagal verifikasi sesi.');
-                setTimeout(() => window.location.href = 'index.html', 2000);
+                this.isLoading = false;
+            } else {
+                // Penanganan error sudah ada di dalam callApi, jadi di sini cukup log
+                console.error("Inisialisasi dashboard gagal.");
             }
         },
 
@@ -90,22 +80,49 @@ function dashboardApp() {
             this.isBonusesLoading = false;
         },
 
-        async startTelegramVerification() {
-                this.showModal('Membuat link aman...');
-                
-                // 1. Minta token sekali pakai dari server
-                const response = await this.callApi({ action: 'generateTelegramToken' });
-        
-                if (response.status === 'success' && response.token) {
-                    // 2. Jika dapat token, buat link t.me dan buka di tab baru
-                    const telegramLink = `https://t.me/senrima8n8_bot?start=${response.token}`;
-                    window.open(telegramLink, '_blank');
-                    this.showModal('Silakan lanjutkan verifikasi di aplikasi Telegram Anda.');
-                } else {
-                    this.showModal('Gagal membuat link verifikasi. Coba lagi.');
+        // --- Fungsi Aksi Pengguna di Halaman 'Akun Saya' ---
+        async updateProfile() {
+            this.showModal('Menyimpan perubahan...');
+            const response = await this.callApi({
+                action: 'updateProfile',
+                payload: { 
+                    namaBaru: this.userData.nama,
+                    usernameBaru: this.userData.username
                 }
+            });
+            this.showModal(response.message || 'Gagal memperbarui profil.');
         },
-
+        async changePassword() {
+            if (!this.passwordData.lama || !this.passwordData.baru) {
+                this.showModal('Password lama dan baru tidak boleh kosong.');
+                return;
+            }
+            this.showModal('Memproses perubahan password...');
+            const response = await this.callApi({
+                action: 'changePassword',
+                payload: {
+                    passwordLama: this.passwordData.lama,
+                    passwordBaru: this.passwordData.baru
+                }
+            });
+            this.showModal(response.message || 'Terjadi kesalahan.');
+            if (response.status === 'success') {
+                this.passwordData = { lama: '', baru: '' };
+                document.getElementById('pass-lama').value = '';
+                document.getElementById('pass-baru').value = '';
+            }
+        },
+        async startTelegramVerification() {
+            this.showModal('Membuat link aman...');
+            const response = await this.callApi({ action: 'generateTelegramToken' });
+            if (response.status === 'success' && response.token) {
+                const telegramLink = `https://t.me/NAMA_BOT_ANDA?start=${response.token}`; // GANTI NAMA_BOT_ANDA
+                window.open(telegramLink, '_blank');
+                this.showModal('Silakan lanjutkan verifikasi di aplikasi Telegram Anda.');
+            } else {
+                this.showModal('Gagal membuat link verifikasi. Coba lagi.');
+            }
+        },
         async saveNotifPreference() {
             this.showModal('Menyimpan preferensi...');
             const response = await this.callApi({
@@ -117,18 +134,25 @@ function dashboardApp() {
 
         // --- Fungsi Inti ---
         async callApi(payload) {
-            const urlParams = new URLSearchParams(window.location.search);
-            const initialToken = urlParams.get('token');
             if (!this.sessionToken) {
-                this.showModal('Sesi tidak valid.');
+                this.showModal('Sesi tidak valid atau telah berakhir.');
                 setTimeout(() => this.logout(false), 2000);
-                return;
+                return { status: 'error', message: 'Sesi tidak valid.' };
             }
-            const headers = { 'Content-Type': 'application/json', 'x-auth-token': this.sessionToken };
-            const body = JSON.stringify({ ...payload, kontrol: 'proteksi', token: initialToken });
+
+            const headers = { 
+                'Content-Type': 'application/json', 
+                'x-auth-token': this.sessionToken // KIRIM TOKEN DI HEADER
+            };
+            
+            // HANYA MENGIRIM PAYLOAD (ACTION, DLL), TIDAK PERLU TOKEN LAGI DI BODY
+            const body = JSON.stringify({ ...payload, kontrol: 'proteksi' });
+            
             try {
                 const response = await fetch(API_ENDPOINT, { method: 'POST', headers, body });
                 const result = await response.json();
+                
+                // Jika token ditolak oleh server, otomatis logout
                 if (result.status === 'error' && (result.message.includes('Token tidak valid') || result.message.includes('Sesi telah berakhir'))) {
                     this.showModal(result.message);
                     setTimeout(() => this.logout(false), 2000);
