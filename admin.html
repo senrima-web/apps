@@ -74,7 +74,6 @@
         </div>
     </div>
 
-    <script src="js/main.js"></script>
 <script>
     function adminPanel() {
         return {
@@ -155,14 +154,23 @@
             },
 
             // FUNGSI GETTER UNTUK FILTER PENCARIAN
+// GANTI FUNGSI LAMA INI DENGAN VERSI BARU YANG LEBIH TANGGUH
             get filteredUsers() {
-                if (!this.searchQuery) return this.users;
+                if (!this.searchQuery) {
+                    return this.users; // Jika tidak ada pencarian, langsung tampilkan semua user
+                }
                 
                 const query = this.searchQuery.toLowerCase();
+                
                 return this.users.filter(user => {
-                    return user.nama.toLowerCase().includes(query) ||
-                           user.email.toLowerCase().includes(query) ||
-                           user.username.toLowerCase().includes(query);
+                    // Cek dulu apakah datanya ada sebelum di-filter, untuk menghindari error
+                    const nama = user.nama || '';
+                    const email = user.email || '';
+                    const username = user.username || '';
+                    
+                    return nama.toLowerCase().includes(query) ||
+                           email.toLowerCase().includes(query) ||
+                           username.toLowerCase().includes(query);
                 });
             }
         }; // <-- Kurung kurawal penutup untuk objek return
