@@ -18,6 +18,7 @@ function dashboardApp() {
         isModalOpen: false,
         isTelegramConnected: false,
         modalMessage: '',
+        notificationPreference: '',
 
         // --- Inisialisasi Dashboard ---
         async init() {
@@ -28,6 +29,13 @@ function dashboardApp() {
                 setTimeout(() => window.location.href = 'index.html', 2000);
                 return;
             }
+            
+            if (result.status === 'success') {
+                this.userData = result.userData;
+                this.notificationPreference = result.userData.notifPreference || 'email';
+                this.isLoading = false;
+            } 
+            
             try {
                 const response = await fetch(API_ENDPOINT, {
                     method: 'POST',
@@ -96,6 +104,15 @@ function dashboardApp() {
                 } else {
                     this.showModal('Gagal membuat link verifikasi. Coba lagi.');
                 }
+        },
+
+        async saveNotifPreference() {
+            this.showModal('Menyimpan preferensi...');
+            const response = await this.callApi({
+                action: 'updateNotifPreference',
+                payload: { preference: this.notificationPreference }
+            });
+            this.showModal(response.message || 'Gagal menyimpan.');
         },
 
         // --- Fungsi Inti ---
