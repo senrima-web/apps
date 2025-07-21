@@ -89,6 +89,11 @@
             async init() {
                 const params = new URLSearchParams(window.location.search);
                 this.sessionToken = params.get('token');
+
+                    // ===============================================================
+                    // TAMBAHKAN BARIS MATA-MATA INI
+                    console.log('TOKEN DARI URL:', this.sessionToken);
+                    // ===============================================================
                 
                 if (!this.sessionToken) {
                     this.view = 'error';
