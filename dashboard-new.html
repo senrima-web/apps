@@ -54,7 +54,18 @@
             </header>
             
             <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-6">
-                <div x-show="activeView === 'beranda'"><h3 class="text-gray-800 text-3xl font-medium">Beranda</h3></div>
+                <div x-show="activeView === 'beranda'">
+                    <template x-if="!userData.isTelegramConnected">
+                        <div class="mb-8 p-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700">
+                            <p class="font-bold">Aktifkan Notifikasi Telegram!</p>
+                            <p class="text-sm">Untuk keamanan dan kemudahan menerima notifikasi penting seperti OTP, hubungkan akun Anda ke Telegram sekarang.</p>
+                            <button @click="activeView = 'akun'" class="mt-2 text-sm font-semibold text-yellow-800 hover:underline">
+                                Pergi ke Halaman Akun →
+                            </button>
+                        </div>
+                    </template>
+                    <h3 class="text-gray-700 text-3xl font-medium">Beranda</h3>
+                </div>
                 
                 <div x-show="activeView === 'aset'">
                     <h3 class="text-gray-800 text-3xl font-medium">Aset Digital Anda</h3>
