@@ -90,7 +90,7 @@ function dashboardApp() {
     
             if (response.status === 'success' && response.token) {
                 // 2. Jika dapat token, buat link t.me dan buka di tab baru
-                const telegramLink = `https://t.me/senrima8n8_bot?start=${response.token}`;
+                const telegramLink = `https://t.me/notif_sboots_bot?start=${response.token}`;
                 window.open(telegramLink, '_blank');
                 this.showModal('Silakan lanjutkan verifikasi di aplikasi Telegram Anda.');
             } else {
