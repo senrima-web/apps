@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verifikasi Telegram - Proteksi Senrima</title>
+    <title>Verifikasi Telegram - S Tools</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -51,7 +51,7 @@
             async init() {
                 // Ambil token dan chatId dari URL
                 const params = new URLSearchParams(window.location.search);
-                const token = params.get('token');   // <-- DIUBAH DARI 'uuid' MENJADI 'token'
+                const token = params.get('token');
                 const chatId = params.get('chatId');
 
                 try {
@@ -62,7 +62,7 @@
                         body: JSON.stringify({ 
                             kontrol: 'proteksi', 
                             action: 'verifyTelegram', 
-                            token: token,      // <-- DIUBAH DARI 'uuid' MENJADI 'token'
+                            token: token,
                             chatId: chatId
                         })
                     });
@@ -70,6 +70,18 @@
 
                     this.status = result.status;
                     this.message = result.message;
+
+                    // --- BAGIAN TAMBAHAN: PENGALIHAN OTOMATIS ---
+                    if (this.status === 'success') {
+                        // Tambahkan pesan bahwa pengguna akan dialihkan
+                        this.message += ' Anda akan dialihkan dalam 3 detik...'; 
+                        
+                        // Tunggu 3 detik, lalu alihkan ke index.html
+                        setTimeout(() => {
+                            window.location.href = 'index.html';
+                        }, 3000); 
+                    }
+                    // --- AKHIR DARI BAGIAN TAMBAHAN ---
 
                 } catch (e) {
                     this.status = 'error';
