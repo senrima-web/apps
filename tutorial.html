@@ -141,9 +141,11 @@
                     const url = new URL(youtubeLink);
                     let videoId = url.searchParams.get('v');
                     if (videoId) {
+                        // BENARKAN SINTAKS DARI {videoId} MENJADI ${videoId}
                         return `https://www.youtube.com/embed/${videoId}`;
                     }
-                    if(url.hostname === 'youtu.be'){
+                    if (url.hostname === 'youtu.be') {
+                        // BENARKAN SINTAKS DARI {pathname} MENJADI ${pathname}
                         return `https://www.youtube.com/embed/${url.pathname.substring(1)}`;
                     }
                 } catch (e) { 
