@@ -17,24 +17,34 @@
     
     <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md text-center transition-all duration-300">
         
+        <!-- Loading -->
         <div x-show="status === 'loading'" x-cloak>
-            <svg class="animate-spin h-12 w-12 text-blue-600 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+            <svg class="animate-spin h-12 w-12 text-blue-600 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
             <h1 class="text-2xl font-bold text-gray-800 mt-4">Memverifikasi...</h1>
             <p class="text-gray-500 mt-2">Menghubungi server, mohon tunggu.</p>
         </div>
 
+        <!-- Success -->
         <div x-show="status === 'success'" x-cloak x-transition>
             <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
-                <svg class="h-6 w-6 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+                <svg class="h-6 w-6 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                </svg>
             </div>
             <h1 class="text-2xl font-bold text-gray-800 mt-4">Verifikasi Berhasil!</h1>
             <p class="text-gray-600 mt-2" x-text="message"></p>
             <p class="text-sm text-gray-500 mt-4">Anda akan diarahkan ke halaman login...</p>
         </div>
-        
+
+        <!-- Error -->
         <div x-show="status === 'error'" x-cloak x-transition>
             <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
-                <svg class="h-6 w-6 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126z" /></svg>
+                <svg class="h-6 w-6 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126z" />
+                </svg>
             </div>
             <h1 class="text-2xl font-bold text-gray-800 mt-4">Verifikasi Gagal</h1>
             <p class="text-gray-600 mt-2" x-text="message"></p>
@@ -47,7 +57,7 @@
 
         function verificationApp() {
             return {
-                status: 'loading', // 'loading', 'success', 'error'
+                status: 'loading',
                 message: '',
                 
                 async init() {
@@ -60,21 +70,30 @@
                             body: JSON.stringify({ 
                                 kontrol: 'proteksi', 
                                 action: 'verifyEmail', 
-                                token: token // Selalu kirim token, biarkan server yang validasi
+                                token: token
                             })
                         });
+
                         const result = await response.json();
 
-                        // Status dan pesan notifikasi SEPENUHNYA dari server
-                        this.status = result.status; // Akan berisi 'success' atau 'error'
-                        this.message = result.message;
+                        // Reset
+                        this.status = 'loading';
+                        this.message = '';
 
-                        if (this.status === 'success') {
-                            setTimeout(() => { window.location.href = 'index.html'; }, 3000);
+                        if (result.status === 'success') {
+                            this.status = 'success';
+                            this.message = result.message || 'Email Anda berhasil diverifikasi.';
+
+                            // Redirect setelah 3 detik
+                            setTimeout(() => {
+                                window.location.href = 'index.html';
+                            }, 3000);
+                        } else {
+                            this.status = 'error';
+                            this.message = result.message || 'Terjadi kesalahan saat verifikasi email.';
                         }
 
                     } catch (e) {
-                        // Blok ini HANYA untuk error koneksi, bukan error validasi
                         this.status = 'error';
                         this.message = 'Koneksi ke server gagal. Mohon periksa jaringan internet Anda.';
                     }
