@@ -67,12 +67,12 @@
             <div class="lg:col-span-2">
                 <div x-show="activeVideo" class="bg-white rounded-lg shadow-md overflow-hidden">
                     <div class="aspect-w-16 aspect-h-9 bg-black">
-                        <iframe :src="activeVideo ? getEmbedUrl(activeVideo['Link Youtube'])" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen class="w-full h-full inset-0"></iframe>
+                        <iframe :src="getEmbedUrl(activeVideo['Link Youtube'])" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen class="w-full h-full inset-0"></iframe>
                     </div>
                     
                     <div class="p-6">
-                        <h3 class="text-2xl font-bold text-gray-900" x-text="activeVideo ? activeVideo['Judul Video']"></h3>
-                        <p class="text-gray-700 mt-4" x-text="activeVideo ? activeVideo.Deskripsi"></p>
+                        <h3 class="text-2xl font-bold text-gray-900" x-text="activeVideo['Judul Video']"></h3>
+                        <p class="text-gray-700 mt-4" x-text="activeVideo.Deskripsi"></p>
 
                         <div x-show="isLastVideo() && overallStatus !== 'sudah ditonton'" class="mt-6 border-t pt-4">
                             <button @click="completeTutorial()" class="px-5 py-2 rounded-md font-semibold text-white bg-green-600 hover:bg-green-700 transition-colors">
