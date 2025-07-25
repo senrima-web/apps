@@ -23,31 +23,28 @@
             <p class="text-gray-500 mt-2">Menghubungi server, mohon tunggu.</p>
         </div>
 
-        <div x-show="status === 'success'" x-cloak x-transition>
-            <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
-                <svg class="h-6 w-6 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
-            </div>
-            <h1 class="text-2xl font-bold text-gray-800 mt-4">Verifikasi Berhasil!</h1>
+        <div x-show="status === 'success' || status === 'error'" x-cloak x-transition>
+            <template x-if="status === 'success'">
+                <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
+                    <svg class="h-6 w-6 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+                </div>
+            </template>
+            
+            <h1 class="text-2xl font-bold text-gray-800 mt-4" x-text="status === 'success' ? 'Verifikasi Berhasil!' : 'Terjadi Kesalahan'"></h1>
+            
             <p class="text-gray-600 mt-2" x-text="message"></p>
-        
-            <div class="mt-6">
+            
+            <div class="mt-6" x-show="status === 'success'">
                 <a href="index.html" class="inline-block bg-blue-600 text-white py-2 px-6 rounded-lg hover:bg-blue-700 font-semibold transition">
                     Kembali ke Beranda
                 </a>
             </div>
         </div>
-        
-        <div x-show="status === 'error'" x-cloak x-transition>
-            <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
-                <svg class="h-6 w-6 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126z" /></svg>
-            </div>
-            <h1 class="text-2xl font-bold text-gray-800 mt-4">Verifikasi Gagal</h1>
-            <p class="text-gray-600 mt-2" x-text="message"></p>
-        </div>
+
     </div>
 
 <script>
-    const API_ENDPOINT = "https://api.senrima.web.id"; // API Gateway kita
+    const API_ENDPOINT = "https://api.senrima.web.id";
 
     function verificationApp() {
         return {
@@ -58,7 +55,7 @@
                 const params = new URLSearchParams(window.location.search);
                 const token = params.get('token');
                 const chatId = params.get('chatId');
-            
+
                 try {
                     const response = await fetch(API_ENDPOINT, {
                         method: 'POST',
@@ -71,19 +68,18 @@
                         })
                     });
                     const result = await response.json();
-            
+
                     this.status = result.status;
                     this.message = result.message;
-            
+
                 } catch (e) {
                     this.status = 'error';
                     this.message = 'Koneksi ke server gagal. Mohon periksa jaringan internet Anda.';
                 }
-            }        
+            }
         }
     }
 </script>
-
 
 </body>
 </html>
