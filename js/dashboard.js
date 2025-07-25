@@ -82,19 +82,36 @@ function dashboardApp() {
             this.isBonusesLoading = false;
         },
 
+        // --- Fungsi Terkait Verifikasi Telegram ---
         async startTelegramVerification() {
             this.showModal('Membuat link aman...');
-            
-            // 1. Minta token sekali pakai dari server
             const response = await this.callApi({ action: 'generateTelegramToken' });
     
             if (response.status === 'success' && response.token) {
-                // 2. Jika dapat token, buat link t.me dan buka di tab baru
                 const telegramLink = `https://t.me/notif_sboots_bot?start=${response.token}`;
                 window.open(telegramLink, '_blank');
-                this.showModal('Silakan lanjutkan verifikasi di aplikasi Telegram Anda.');
+                // **PERUBAHAN PESAN SESUAI PERMINTAAN**
+                this.showModal('Silakan lanjutkan verifikasi di aplikasi Telegram Anda. Halaman ini akan memuat ulang setelah Anda kembali.');
             } else {
                 this.showModal('Gagal membuat link verifikasi. Coba lagi.');
+            }
+        },
+
+        // **FUNGSI BARU UNTUK MEMUTUSKAN HUBUNGAN**
+        async disconnectTelegram() {
+            if (!confirm('Apakah Anda yakin ingin memutuskan hubungan dengan Telegram? Anda akan berhenti menerima notifikasi OTP melalui Telegram.')) {
+                return;
+            }
+            
+            this.showModal('Memutuskan hubungan...');
+            const response = await this.callApi({ action: 'disconnectTelegram' });
+
+            if (response.status === 'success') {
+                this.isModalOpen = false;
+                // Muat ulang data dashboard untuk refresh status
+                await this.getDashboardData(); 
+            } else {
+                this.showModal(response.message || 'Gagal memutuskan hubungan. Coba lagi.');
             }
         },
 
