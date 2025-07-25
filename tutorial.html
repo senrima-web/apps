@@ -9,6 +9,25 @@
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <style>
+        body { font-family: 'Poppins', sans-serif; }
+        [x-cloak] { display: none !important; }
+        .tab-active { background-color: #eff6ff; border-color: #3b82f6; }
+    
+        /* TAMBAHKAN KODE DI BAWAH INI */
+        .aspect-w-16 {
+            position: relative;
+            padding-bottom: 56.25%; /* 9 / 16 = 0.5625 */
+        }
+        .aspect-w-16 > * {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
     
     <style>
         body { font-family: 'Poppins', sans-serif; }
@@ -64,7 +83,7 @@
                 <div x-show="activeTutorial" class="bg-white rounded-lg shadow-md overflow-hidden">
                     <!-- YouTube Player -->
                     <div class="aspect-w-16 aspect-h-9 bg-black">
-                        <iframe :src="getEmbedUrl(activeTutorial.LinkYouTube)" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen class="w-full h-full"></iframe>
+                        <iframe :src="getEmbedUrl(activeTutorial.LinkYouTube)" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen class="w-full h-full inset-0"></iframe>
                     </div>
                     
                     <!-- Detail Video -->
