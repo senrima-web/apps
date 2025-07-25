@@ -171,17 +171,29 @@
                 }
             },
 
+            // GANTI FUNGSI LAMA DENGAN VERSI BARU INI
             async callApi(payload) {
                 try {
+                    // Header kini lebih sederhana, tanpa token
                     const headers = { 
-                        'Content-Type': 'application/json', 
-                        'x-auth-token': this.sessionToken 
+                        'Content-Type': 'application/json'
                     };
-                    const body = JSON.stringify({ ...payload, kontrol: 'proteksi' });
+                    // Token sesi sekarang disertakan di dalam body, agar konsisten dengan dashboard
+                    const body = JSON.stringify({ ...payload, kontrol: 'proteksi', token: this.sessionToken });
+            
                     const response = await fetch(API_ENDPOINT, { method: 'POST', headers, body });
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    
+                    // Logika untuk menampilkan alert jika respons tidak OK
+                    if (!response.ok) {
+                        const errorResult = await response.json();
+                        alert(`Error di backend: ${errorResult.message || response.statusText}`);
+                        return errorResult;
+                    }
+            
                     return await response.json();
+                    
                 } catch (e) {
+                    alert(`Koneksi ke server gagal: ${e.message}`);
                     return { status: 'error', message: `Koneksi ke server gagal: ${e.message}` };
                 }
             }
