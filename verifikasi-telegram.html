@@ -29,6 +29,12 @@
             </div>
             <h1 class="text-2xl font-bold text-gray-800 mt-4">Verifikasi Berhasil!</h1>
             <p class="text-gray-600 mt-2" x-text="message"></p>
+        
+            <div class="mt-6">
+                <a href="index.html" class="inline-block bg-blue-600 text-white py-2 px-6 rounded-lg hover:bg-blue-700 font-semibold transition">
+                    Kembali ke Beranda
+                </a>
+            </div>
         </div>
         
         <div x-show="status === 'error'" x-cloak x-transition>
@@ -49,13 +55,11 @@
             message: '',
             
             async init() {
-                // Ambil token dan chatId dari URL
                 const params = new URLSearchParams(window.location.search);
                 const token = params.get('token');
                 const chatId = params.get('chatId');
-
+            
                 try {
-                    // Kirim data ke server kita via POST (jalur aman)
                     const response = await fetch(API_ENDPOINT, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -67,27 +71,15 @@
                         })
                     });
                     const result = await response.json();
-
+            
                     this.status = result.status;
                     this.message = result.message;
-
-                    // --- BAGIAN TAMBAHAN: PENGALIHAN OTOMATIS ---
-                    if (this.status === 'success') {
-                        // Tambahkan pesan bahwa pengguna akan dialihkan
-                        this.message += ' Anda akan dialihkan dalam 3 detik...'; 
-                        
-                        // Tunggu 3 detik, lalu alihkan ke index.html
-                        setTimeout(() => {
-                            window.location.href = 'index.html';
-                        }, 3000); 
-                    }
-                    // --- AKHIR DARI BAGIAN TAMBAHAN ---
-
+            
                 } catch (e) {
                     this.status = 'error';
                     this.message = 'Koneksi ke server gagal. Mohon periksa jaringan internet Anda.';
                 }
-            }
+            }        
         }
     }
 </script>
