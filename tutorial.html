@@ -13,7 +13,7 @@
     <style>
         body { font-family: 'Poppins', sans-serif; }
         [x-cloak] { display: none !important; }
-        .tab-active { background-color: #eff6ff; border-color: #3b82f6; }
+        .tab-active { background-color: #eff6ff; border-color: #3b82f6; color: #1d4ed8; }
         
         .aspect-w-16 {
             position: relative;
@@ -48,14 +48,15 @@
                 <div class="space-y-2">
                     <template x-for="(video, index) in videos" :key="index">
                         <button @click="selectVideo(video)" 
-                                class="w-full text-left p-4 rounded-lg border-l-4 transition-all duration-200"
-                                :class="activeVideo && activeVideo['Judul Video'] === video['Judul Video'] ? 'tab-active' : 'border-transparent hover:bg-gray-50'">
-                            <div class="flex items-center">
-                                <span class="flex-shrink-0 mr-3 h-6 w-6 rounded-full flex items-center justify-center text-xs font-bold bg-gray-300 text-gray-700" x-text="video.Status"></span>
-                                <div class="flex-grow">
-                                    <p class="font-semibold text-gray-800" x-text="video['Judul Video']"></p>
-                                </div>
-                            </div>
+                                class="w-full text-left p-4 rounded-lg border-l-4 transition-all duration-200 flex items-center gap-4"
+                                :class="activeVideo && activeVideo['Judul Video'] === video['Judul Video'] ? 'tab-active' : 'border-transparent hover:bg-gray-50 text-gray-600'">
+                            <svg class="flex-shrink-0 h-6 w-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M4.5 4.5a3 3 0 00-3 3v9a3 3 0 003 3h15a3 3 0 003-3v-9a3 3 0 00-3-3h-15z" clip-rule="evenodd" fill-rule="evenodd"></path>
+                                <path d="M8.25 8.625a1.5 1.5 0 011.5 1.5v3.75a1.5 1.5 0 01-3 0v-3.75a1.5 1.5 0 011.5-1.5z"></path>
+                                <path d="M12.75 8.625a1.5 1.5 0 011.5 1.5v3.75a1.5 1.5 0 01-3 0v-3.75a1.5 1.5 0 011.5-1.5z"></path>
+                                <path d="M17.25 8.625a1.5 1.5 0 011.5 1.5v3.75a1.5 1.5 0 01-3 0v-3.75a1.5 1.5 0 011.5-1.5z"></path>
+                            </svg>
+                            <span class="font-semibold" x-text="video['Judul Video']"></span>
                         </button>
                     </template>
                     <div x-show="videos.length === 0" class="text-center text-gray-500 py-8">
@@ -67,12 +68,12 @@
             <div class="lg:col-span-2">
                 <div x-show="activeVideo" class="bg-white rounded-lg shadow-md overflow-hidden">
                     <div class="aspect-w-16 aspect-h-9 bg-black">
-                        <iframe :src="getEmbedUrl(activeVideo['Link Youtube'])" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen class="w-full h-full inset-0"></iframe>
+                        <iframe :src="activeVideo ? getEmbedUrl(activeVideo['Link Youtube']) : ''" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen class="w-full h-full inset-0"></iframe>
                     </div>
                     
                     <div class="p-6">
-                        <h3 class="text-2xl font-bold text-gray-900" x-text="activeVideo['Judul Video']"></h3>
-                        <p class="text-gray-700 mt-4" x-text="activeVideo.Deskripsi"></p>
+                        <h3 class="text-2xl font-bold text-gray-900" x-text="activeVideo ? activeVideo['Judul Video'] : ''"></h3>
+                        <p class="text-gray-700 mt-4" x-text="activeVideo ? activeVideo.Deskripsi : ''"></p>
 
                         <div x-show="isLastVideo() && overallStatus !== 'sudah ditonton'" class="mt-6 border-t pt-4">
                             <button @click="completeTutorial()" class="px-5 py-2 rounded-md font-semibold text-white bg-green-600 hover:bg-green-700 transition-colors">
@@ -141,11 +142,9 @@
                     const url = new URL(youtubeLink);
                     let videoId = url.searchParams.get('v');
                     if (videoId) {
-                        // BENARKAN SINTAKS DARI {videoId} MENJADI ${videoId}
                         return `https://www.youtube.com/embed/${videoId}`;
                     }
-                    if (url.hostname === 'youtu.be') {
-                        // BENARKAN SINTAKS DARI {pathname} MENJADI ${pathname}
+                    if(url.hostname === 'youtu.be'){
                         return `https://www.youtube.com/embed/${url.pathname.substring(1)}`;
                     }
                 } catch (e) { 
