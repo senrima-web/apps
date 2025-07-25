@@ -123,17 +123,26 @@
             activeTutorial: null,
             sessionToken: null,
 
+            // Ganti fungsi init() lama dengan versi baru ini
             async init() {
                 const urlParams = new URLSearchParams(window.location.search);
                 this.sessionToken = urlParams.get('token');
+                
+                // **BARIS BARU: Ambil idtutor dari URL**
+                const idTutor = urlParams.get('idtutor');
                 
                 if (!this.sessionToken) {
                     alert('Sesi tidak valid. Anda akan diarahkan ke halaman login.');
                     window.location.href = 'index.html';
                     return;
                 }
-
-                const response = await this.callApi({ action: 'getTutorials' });
+            
+                // **MODIFIKASI: Kirim idtutor ke backend**
+                const response = await this.callApi({ 
+                    action: 'getTutorials',
+                    idtutor: idTutor // Kirim idtutor sebagai bagian dari payload
+                });
+            
                 if (response.status === 'success') {
                     this.tutorials = response.data;
                     if (this.tutorials.length > 0) {
@@ -144,7 +153,6 @@
                 }
                 this.isLoading = false;
             },
-
             selectTutorial(tutorial) {
                 this.activeTutorial = tutorial;
             },
